@@ -6,7 +6,7 @@
 
 enum OBJECT_TYPE
 {
-	PLAYER,
+	//PLAYER,
 	ENEMY,
 	BULLET
 };
@@ -26,11 +26,11 @@ private:
 	gef::Vector4 scale_;
 };
 
-class Player : public GameObject
-{
-public:
-	Player();
-	void DecrementHealth();
-};
+//class Player : public GameObject
+//{
+//public:
+//	Player();
+//	void DecrementHealth();
+//};
 
 #endif // _GAME_OBJECT_H

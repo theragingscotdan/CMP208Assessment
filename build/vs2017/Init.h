@@ -19,7 +19,7 @@ class Initial
 {
 public:
 	Initial();
-	void InitPlayer(PrimitiveBuilder* primBuild, b2World* world, Player* player_, b2Body* player_body_);
+	/*void InitPlayer(PrimitiveBuilder* primBuild, b2World* world, Player* player_, b2Body* player_body_);*/
 	void InitGround(PrimitiveBuilder* primBuild, b2World* world, gef::Mesh* ground_mesh_, GameObject* ground_, b2Body* ground_body_);
 
 

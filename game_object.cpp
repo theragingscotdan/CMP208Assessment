@@ -36,14 +36,14 @@ void GameObject::SetScale(gef::Vector4 _scale)
 	scale_ = _scale;
 }
 
-Player::Player()
-{
-	set_type(PLAYER);
-}
-
-void Player::DecrementHealth()
-{
-	//gef::DebugOut("Player has taken damage.\n");
-}
+//Player::Player()
+//{
+//	set_type(PLAYER);
+//}
+//
+//void Player::DecrementHealth()
+//{
+//	//gef::DebugOut("Player has taken damage.\n");
+//}
 
 
