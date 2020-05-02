@@ -269,7 +269,7 @@ void SceneApp::UpdateSimulation(float frame_time)
 
 			if (player)
 			{
-				player->DecrementHealth();
+				//player->DecrementHealth();
 			}
 		}
 

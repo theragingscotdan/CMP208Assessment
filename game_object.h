@@ -6,7 +6,7 @@
 
 enum OBJECT_TYPE
 {
-	//PLAYER,
+	PLAYER,
 	ENEMY,
 	BULLET
 };

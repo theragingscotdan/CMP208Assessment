@@ -9,6 +9,7 @@
 #include <box2d/Box2D.h>
 #include "game_object.h"
 #include "Init.h"
+#include "Player.h"
 
 
 // FRAMEWORK FORWARD DECLARATIONS
