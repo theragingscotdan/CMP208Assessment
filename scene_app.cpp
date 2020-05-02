@@ -389,17 +389,23 @@ void SceneApp::GameUpdate(float frame_time)
 		player_body_->ApplyForceToCenter(b2Vec2(0, 500), true);
 	}
 
+	if (keyboards->IsKeyPressed(gef::Keyboard::KC_R))
+	{
+		// reload level
+		//ReleaseGameState();
+		game_state = INIT;
+	}
 	
 	if (speed < 50)
 	{
-		if (keyboards->IsKeyDown(gef::Keyboard::KC_RIGHT) || keyboards->IsKeyPressed(gef::Keyboard::KC_D))
+		if (keyboards->IsKeyDown(gef::Keyboard::KC_RIGHT) || keyboards->IsKeyDown(gef::Keyboard::KC_D))
 		{
 			player_body_->ApplyForceToCenter(b2Vec2(25, 0), true);
 			speed += 25;
 		}
 	}
 
-	if (keyboards->IsKeyDown(gef::Keyboard::KC_LEFT) || keyboards->IsKeyPressed(gef::Keyboard::KC_A))
+	if (keyboards->IsKeyDown(gef::Keyboard::KC_LEFT) || keyboards->IsKeyDown(gef::Keyboard::KC_A))
 	{
 		player_body_->ApplyForceToCenter(b2Vec2(-25, 0), true);
 	}
@@ -455,8 +461,8 @@ void SceneApp::GameRender()
 	renderer_3d_->set_projection_matrix(projection_matrix);
 
 	// view
-	gef::Vector4 camera_eye(0.0f, 2.0f, 10.0f);
-	gef::Vector4 camera_lookat(0.0f, 0.0f, 0.0f);
+	gef::Vector4 camera_eye(0.0f, player_body_->GetPosition().y, 10.0f);
+	gef::Vector4 camera_lookat(0.0f, player_body_->GetPosition().y, 0.0f);
 	gef::Vector4 camera_up(0.0f, 1.0f, 0.0f);
 	gef::Matrix44 view_matrix;
 	view_matrix.LookAt(camera_eye, camera_lookat, camera_up);
