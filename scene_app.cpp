@@ -115,7 +115,7 @@ void SceneApp::InitPlayer()
 {
 	// setup the mesh for the player
 	player_.set_mesh(primitive_builder_->GetDefaultCubeMesh());
-	player_.SetScale(gef::Vector4(1.0, 1.0, 1.0));
+	player_.SetScale(gef::Vector4(0.5, 0.5, 0.5));
 
 	// create a physics body for the player
 	b2BodyDef player_body_def;
@@ -126,7 +126,7 @@ void SceneApp::InitPlayer()
 
 	// create the shape for the player
 	b2PolygonShape player_shape;
-	player_shape.SetAsBox(0.5f, 0.5f);
+	player_shape.SetAsBox(0.25f, 0.25f);
 
 	// create the fixture
 	b2FixtureDef player_fixture_def;
@@ -384,9 +384,11 @@ void SceneApp::GameUpdate(float frame_time)
 	const gef::SonyController* controller = input_manager_->controller_input()->GetController(0);
 	const gef::Keyboard* keyboards = input_manager_->keyboard();
 
+	
+
 	if (keyboards->IsKeyPressed(gef::Keyboard::KC_SPACE))
 	{
-		player_body_->ApplyForceToCenter(b2Vec2(0, 350), true);
+		player_body_->ApplyForceToCenter(b2Vec2(0, 175), true); // 350 did work with previous mass
 		player_.SetState(JUMP);
 	}
 
@@ -399,27 +401,27 @@ void SceneApp::GameUpdate(float frame_time)
 	
 	if (keyboards->IsKeyDown(gef::Keyboard::KC_RIGHT) || keyboards->IsKeyDown(gef::Keyboard::KC_D))
 	{
-		if (player_body_->GetLinearVelocity().x <= 10)
+		if (player_body_->GetLinearVelocity().x <= 5)
 		{
 	
-		player_body_->ApplyForceToCenter(b2Vec2(5, player_body_->GetLinearVelocity().y), true);
+		player_body_->ApplyForceToCenter(b2Vec2(1.25, player_body_->GetLinearVelocity().y), true);
 		
 		}
-		else if (player_body_->GetLinearVelocity().x > 10)
+		else if (player_body_->GetLinearVelocity().x > 5)
 		{
-			player_body_->SetLinearVelocity(b2Vec2(10.0, player_body_->GetLinearVelocity().y));
+			player_body_->SetLinearVelocity(b2Vec2(5.0, player_body_->GetLinearVelocity().y));
 		}
 	}
 
 	if (keyboards->IsKeyDown(gef::Keyboard::KC_LEFT) || keyboards->IsKeyDown(gef::Keyboard::KC_A))
 	{
-		if (player_body_->GetLinearVelocity().x >= -10)
+		if (player_body_->GetLinearVelocity().x >= -5)
 		{
-			player_body_->ApplyForceToCenter(b2Vec2(-5, player_body_->GetLinearVelocity().y), true);
+			player_body_->ApplyForceToCenter(b2Vec2(-1.25, player_body_->GetLinearVelocity().y), true);
 		}
-		else if (player_body_->GetLinearVelocity().x < -10)
+		else if (player_body_->GetLinearVelocity().x < -5)
 		{
-			player_body_->SetLinearVelocity(b2Vec2(-10.0, player_body_->GetLinearVelocity().y));
+			player_body_->SetLinearVelocity(b2Vec2(-5.0, player_body_->GetLinearVelocity().y));
 		}
 	}
 	
@@ -447,6 +449,7 @@ void SceneApp::GameUpdate(float frame_time)
 		player_body_->SetTransform(newPositionR, player_body_->GetAngle());
 	}
 
+	player_.Update(frame_time);
 	UpdateSimulation(frame_time);
 
 	/*if (controller)

@@ -2,6 +2,7 @@
 
 Player::Player() 
 {
+	
 
 }
 
@@ -9,6 +10,7 @@ void Player::InitPlayer(PrimitiveBuilder* primBuild, b2World* world, b2Body* pla
 {
 	// setup the mesh for the player
 	set_mesh(primBuild->GetDefaultCubeMesh());
+	SetScale(gef::Vector4(1.0, 1.0, 1.0));
 
 	// create a physics body for the player
 	b2BodyDef player_body_def;
@@ -34,6 +36,14 @@ void Player::InitPlayer(PrimitiveBuilder* primBuild, b2World* world, b2Body* pla
 
 	// create a connection between the rigid body and GameObject
 	player_body_->SetUserData(this);
+}
+
+void Player::Update(float frame_time)
+{
+	if (state_ = JUMP)
+	{
+		canJump = true;
+	} 
 }
 
 void Player::SetState(PlayerState state)
