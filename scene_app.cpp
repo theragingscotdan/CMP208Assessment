@@ -387,6 +387,7 @@ void SceneApp::GameUpdate(float frame_time)
 	if (keyboards->IsKeyPressed(gef::Keyboard::KC_SPACE))
 	{
 		player_body_->ApplyForceToCenter(b2Vec2(0, 350), true);
+		player_.SetState(JUMP);
 	}
 
 	if (keyboards->IsKeyPressed(gef::Keyboard::KC_R))
@@ -423,8 +424,10 @@ void SceneApp::GameUpdate(float frame_time)
 	}
 	
 	// to be used in future
-	//if (keyboards->IsKeyDown(gef::Keyboard::E))
-
+	if (keyboards->IsKeyDown(gef::Keyboard::KC_E))
+	{
+		player_.SetState(ATTACK);
+	}
 
 	// attempt to wrap the player
 	// when the player reaches the edge of the screen, set the position to the opposite side of the screen

@@ -17,7 +17,10 @@ class Player : public GameObject
 public:
 	Player();
 	void InitPlayer(PrimitiveBuilder* primBuild, b2World* world, b2Body* player_body_);
+	void SetState(PlayerState state);
 
 
+private:
+	PlayerState state_;
 };
 

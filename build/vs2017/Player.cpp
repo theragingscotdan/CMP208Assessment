@@ -35,3 +35,8 @@ void Player::InitPlayer(PrimitiveBuilder* primBuild, b2World* world, b2Body* pla
 	// create a connection between the rigid body and GameObject
 	player_body_->SetUserData(this);
 }
+
+void Player::SetState(PlayerState state)
+{
+	state_ = state;
+}
