@@ -19,7 +19,7 @@ SceneApp::SceneApp(gef::Platform& platform) :
 	input_manager_(NULL),
 	font_(NULL),
 	world_(NULL),
-	player_body_(NULL),
+	//player_body_(NULL),
 	button_icon_(NULL)
 {
 }
@@ -115,37 +115,37 @@ void SceneApp::Render()
 	
 }
 
-void SceneApp::InitPlayer()
-{
-	// setup the mesh for the player
-	player_.set_mesh(primitive_builder_->GetDefaultCubeMesh());
-	player_.SetScale(gef::Vector4(0.5, 0.5, 0.5));
-
-	// create a physics body for the player
-	b2BodyDef player_body_def;
-	player_body_def.type = b2_dynamicBody;
-	player_body_def.position = b2Vec2(0.0f, 4.0f);
-
-	player_body_ = world_->CreateBody(&player_body_def);
-
-	// create the shape for the player
-	b2PolygonShape player_shape;
-	player_shape.SetAsBox(0.25f, 0.25f);
-
-	// create the fixture
-	b2FixtureDef player_fixture_def;
-	player_fixture_def.shape = &player_shape;
-	player_fixture_def.density = 1.0f;
-
-	// create the fixture on the rigid body
-	player_body_->CreateFixture(&player_fixture_def);
-
-	// update visuals from simulation data
-	player_.UpdateFromSimulation(player_body_);
-
-	// create a connection between the rigid body and GameObject
-	player_body_->SetUserData(&player_);
-}
+//void SceneApp::InitPlayer()
+//{
+//	// setup the mesh for the player
+//	player_.set_mesh(primitive_builder_->GetDefaultCubeMesh());
+//	player_.SetScale(gef::Vector4(0.5, 0.5, 0.5));
+//
+//	// create a physics body for the player
+//	b2BodyDef player_body_def;
+//	player_body_def.type = b2_dynamicBody;
+//	player_body_def.position = b2Vec2(0.0f, 4.0f);
+//
+//	player_body_ = world_->CreateBody(&player_body_def);
+//
+//	// create the shape for the player
+//	b2PolygonShape player_shape;
+//	player_shape.SetAsBox(0.25f, 0.25f);
+//
+//	// create the fixture
+//	b2FixtureDef player_fixture_def;
+//	player_fixture_def.shape = &player_shape;
+//	player_fixture_def.density = 1.0f;
+//
+//	// create the fixture on the rigid body
+//	player_body_->CreateFixture(&player_fixture_def);
+//
+//	// update visuals from simulation data
+//	player_.UpdateFromSimulation(player_body_);
+//
+//	// create a connection between the rigid body and GameObject
+//	player_body_->SetUserData(&player_);
+//}
 
 void SceneApp::InitGround()
 {
@@ -228,7 +228,7 @@ void SceneApp::UpdateSimulation(float frame_time)
 	world_->Step(timeStep, velocityIterations, positionIterations);
 
 	// update object visuals from simulation data
-	player_.UpdateFromSimulation(player_body_);
+	player_.UpdateFromSimulation(player_.GetBody());
 
 	// don't have to update the ground visuals as it is static
 
@@ -360,9 +360,9 @@ void SceneApp::GameInit()
 	b2Vec2 gravity(0.0f, -9.81f);
 	world_ = new b2World(gravity);
 
-	InitPlayer();
+	//InitPlayer();
 	InitGround();
-	//player_.InitPlayer(primitive_builder_, world_, player_body_);
+	player_.InitPlayer(primitive_builder_, world_);
 	//initialise->InitGround(primitive_builder_, world_, ground_mesh_, &ground_, ground_body_);
 	platforms_->InitPlatforms(primitive_builder_, world_, 20.0, 10.0);
 }
@@ -393,7 +393,7 @@ void SceneApp::GameUpdate(float frame_time)
 
 	if (keyboards->IsKeyPressed(gef::Keyboard::KC_SPACE))
 	{
-		player_body_->ApplyForceToCenter(b2Vec2(0, 100), true); // 350 did work with previous mass
+		player_.GetBody()->ApplyForceToCenter(b2Vec2(0, 100), true); // 350 did work with previous mass
 		player_.SetState(JUMP);
 	}
 
@@ -406,29 +406,29 @@ void SceneApp::GameUpdate(float frame_time)
 	
 	if (keyboards->IsKeyDown(gef::Keyboard::KC_RIGHT) || keyboards->IsKeyDown(gef::Keyboard::KC_D))
 	{
-		if (player_body_->GetLinearVelocity().x <= 5)
+		if (player_.GetBody()->GetLinearVelocity().x <= 5)
 		{
 	
 		//player_body_->ApplyForceToCenter(b2Vec2(1.25, player_body_->GetLinearVelocity().y), true);
-			player_body_->ApplyForceToCenter(b2Vec2(1.25, 0), true);
+			player_.GetBody()->ApplyForceToCenter(b2Vec2(1.25, 0), true);
 		
 		}
-		else if (player_body_->GetLinearVelocity().x > 5)
+		else if (player_.GetBody()->GetLinearVelocity().x > 5)
 		{
-			player_body_->SetLinearVelocity(b2Vec2(5.0, player_body_->GetLinearVelocity().y));
+			player_.GetBody()->SetLinearVelocity(b2Vec2(5.0, player_.GetBody()->GetLinearVelocity().y));
 		}
 	}
 
 	if (keyboards->IsKeyDown(gef::Keyboard::KC_LEFT) || keyboards->IsKeyDown(gef::Keyboard::KC_A))
 	{
-		if (player_body_->GetLinearVelocity().x >= -5)
+		if (player_.GetBody()->GetLinearVelocity().x >= -5)
 		{
 			//player_body_->ApplyForceToCenter(b2Vec2(-1.25, player_body_->GetLinearVelocity().y), true);
-			player_body_->ApplyForceToCenter(b2Vec2(-1.25, 0), true);
+			player_.GetBody()->ApplyForceToCenter(b2Vec2(-1.25, 0), true);
 		}
-		else if (player_body_->GetLinearVelocity().x < -5)
+		else if (player_.GetBody()->GetLinearVelocity().x < -5)
 		{
-			player_body_->SetLinearVelocity(b2Vec2(-5.0, player_body_->GetLinearVelocity().y));
+			player_.GetBody()->SetLinearVelocity(b2Vec2(-5.0, player_.GetBody()->GetLinearVelocity().y));
 		}
 	}
 	
@@ -440,20 +440,20 @@ void SceneApp::GameUpdate(float frame_time)
 
 	// attempt to wrap the player
 	// when the player reaches the edge of the screen, set the position to the opposite side of the screen
-	if (player_body_->GetPosition().x < -8)
+	if (player_.GetBody()->GetPosition().x < -8)
 	{
 		gef::DebugOut("position hit");//, " Mass 2 is %f %f \n", ground_body_->GetMass());
 		//player_body_->
-		b2Vec2 newPositionL(8.0f, player_body_->GetPosition().y);
-		player_body_->SetTransform(newPositionL, player_body_->GetAngle());
+		b2Vec2 newPositionL(8.0f, player_.GetBody()->GetPosition().y);
+		player_.GetBody()->SetTransform(newPositionL, player_.GetBody()->GetAngle());
 	}
 
-	if (player_body_->GetPosition().x > 8)
+	if (player_.GetBody()->GetPosition().x > 8)
 	{
 		gef::DebugOut("position hit");//, " Mass 2 is %f %f \n", ground_body_->GetMass());
 									  //player_body_->
-		b2Vec2 newPositionR(-8.0f, player_body_->GetPosition().y);
-		player_body_->SetTransform(newPositionR, player_body_->GetAngle());
+		b2Vec2 newPositionR(-8.0f, player_.GetBody()->GetPosition().y);
+		player_.GetBody()->SetTransform(newPositionR, player_.GetBody()->GetAngle());
 	}
 
 	player_.Update(frame_time);
@@ -486,8 +486,8 @@ void SceneApp::GameRender()
 	renderer_3d_->set_projection_matrix(projection_matrix);
 
 	// view
-	gef::Vector4 camera_eye(0.0f, player_body_->GetPosition().y, 10.0f);
-	gef::Vector4 camera_lookat(0.0f, player_body_->GetPosition().y, 0.0f);
+	gef::Vector4 camera_eye(0.0f, player_.GetBody()->GetPosition().y, 10.0f);
+	gef::Vector4 camera_lookat(0.0f, player_.GetBody()->GetPosition().y, 0.0f);
 	gef::Vector4 camera_up(0.0f, 1.0f, 0.0f);
 	gef::Matrix44 view_matrix;
 	view_matrix.LookAt(camera_eye, camera_lookat, camera_up);

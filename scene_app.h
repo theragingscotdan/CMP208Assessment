@@ -68,7 +68,7 @@ private:
 
 	// player variables
 	Player player_;
-	b2Body* player_body_;
+	//b2Body* player_body_;
 
 	// ground variables
 	gef::Mesh* ground_mesh_;

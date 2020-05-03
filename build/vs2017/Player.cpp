@@ -6,7 +6,7 @@ Player::Player()
 
 }
 
-void Player::InitPlayer(PrimitiveBuilder* primBuild, b2World* world, b2Body* player_body_)
+void Player::InitPlayer(PrimitiveBuilder* primBuild, b2World* world)
 {
 	// setup the mesh for the player
 	set_mesh(primBuild->GetDefaultCubeMesh());
@@ -53,4 +53,9 @@ void Player::Update(float frame_time)
 void Player::SetState(PlayerState state)
 {
 	state_ = state;
+}
+
+b2Body* Player::GetBody()
+{
+	return player_body_;
 }

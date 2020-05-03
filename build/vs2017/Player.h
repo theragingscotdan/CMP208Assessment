@@ -16,12 +16,15 @@ class Player : public GameObject
 {
 public:
 	Player();
-	void InitPlayer(PrimitiveBuilder* primBuild, b2World* world, b2Body* player_body_);
+	void InitPlayer(PrimitiveBuilder* primBuild, b2World* world);
 	void Update(float frame_time);
 	void SetState(PlayerState state);
+	b2Body* GetBody();
 
 
 private:
+	b2Body* player_body_;
+	
 	PlayerState state_;
 	bool canJump = false;
 };
