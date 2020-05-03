@@ -17,7 +17,7 @@ void platforms::InitPlatforms(PrimitiveBuilder* primBuild, b2World* world, float
 	// create a physics body
 	b2BodyDef body_def;
 	body_def.type = b2_staticBody;
-	body_def.position = b2Vec2(0.0f, -4.0f);
+	body_def.position = b2Vec2(x, y);
 
 	platform_body_ = world->CreateBody(&body_def);
 

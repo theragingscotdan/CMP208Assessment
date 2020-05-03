@@ -31,6 +31,7 @@ void SceneApp::Init()
 
 	// initialise input manager
 	input_manager_ = gef::InputManager::Create(platform_);
+	platforms_ = new platforms;
 
 	initialise = new Initial;
 
@@ -51,6 +52,9 @@ void SceneApp::CleanUp()
 
 	delete initialise;
 	initialise = NULL;
+
+	delete platforms_;
+	platforms_ = NULL;
 
 	ReleaseGameState();
 }
@@ -360,6 +364,7 @@ void SceneApp::GameInit()
 	InitGround();
 	//player_.InitPlayer(primitive_builder_, world_, player_body_);
 	//initialise->InitGround(primitive_builder_, world_, ground_mesh_, &ground_, ground_body_);
+	platforms_->InitPlatforms(primitive_builder_, world_, 20.0, 10.0);
 }
 
 void SceneApp::GameRelease()
