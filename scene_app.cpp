@@ -358,7 +358,7 @@ void SceneApp::GameInit()
 
 	InitPlayer();
 	InitGround();
-	//initialise->InitPlayer(primitive_builder_, world_, &player_, player_body_);
+	//player_.InitPlayer(primitive_builder_, world_, player_body_);
 	//initialise->InitGround(primitive_builder_, world_, ground_mesh_, &ground_, ground_body_);
 }
 
@@ -386,7 +386,7 @@ void SceneApp::GameUpdate(float frame_time)
 
 	if (keyboards->IsKeyPressed(gef::Keyboard::KC_SPACE))
 	{
-		player_body_->ApplyForceToCenter(b2Vec2(0, 500), true);
+		player_body_->ApplyForceToCenter(b2Vec2(0, 350), true);
 	}
 
 	if (keyboards->IsKeyPressed(gef::Keyboard::KC_R))
@@ -396,18 +396,30 @@ void SceneApp::GameUpdate(float frame_time)
 		game_state = INIT;
 	}
 	
-	if (speed < 50)
+	if (keyboards->IsKeyDown(gef::Keyboard::KC_RIGHT) || keyboards->IsKeyDown(gef::Keyboard::KC_D))
 	{
-		if (keyboards->IsKeyDown(gef::Keyboard::KC_RIGHT) || keyboards->IsKeyDown(gef::Keyboard::KC_D))
+		if (player_body_->GetLinearVelocity().x <= 10)
 		{
-			player_body_->ApplyForceToCenter(b2Vec2(25, 0), true);
-			speed += 25;
+	
+		player_body_->ApplyForceToCenter(b2Vec2(5, player_body_->GetLinearVelocity().y), true);
+		
+		}
+		else if (player_body_->GetLinearVelocity().x > 10)
+		{
+			player_body_->SetLinearVelocity(b2Vec2(10.0, player_body_->GetLinearVelocity().y));
 		}
 	}
 
 	if (keyboards->IsKeyDown(gef::Keyboard::KC_LEFT) || keyboards->IsKeyDown(gef::Keyboard::KC_A))
 	{
-		player_body_->ApplyForceToCenter(b2Vec2(-25, 0), true);
+		if (player_body_->GetLinearVelocity().x >= -10)
+		{
+			player_body_->ApplyForceToCenter(b2Vec2(-5, player_body_->GetLinearVelocity().y), true);
+		}
+		else if (player_body_->GetLinearVelocity().x < -10)
+		{
+			player_body_->SetLinearVelocity(b2Vec2(-10.0, player_body_->GetLinearVelocity().y));
+		}
 	}
 	
 	// to be used in future
