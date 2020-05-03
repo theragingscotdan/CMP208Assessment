@@ -10,7 +10,7 @@
 #include "game_object.h"
 #include "Init.h"
 #include "Player.h"
-
+#include "Platform.h"
 
 // FRAMEWORK FORWARD DECLARATIONS
 namespace gef
@@ -74,6 +74,8 @@ private:
 	gef::Mesh* ground_mesh_;
 	GameObject ground_;
 	b2Body* ground_body_;
+
+	platforms* platforms_;
 
 	// audio variables
 	int sfx_id_;

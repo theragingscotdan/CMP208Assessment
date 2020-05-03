@@ -44,6 +44,10 @@ void Player::Update(float frame_time)
 	{
 		canJump = true;
 	} 
+	else
+	{
+		canJump = false;
+	}
 }
 
 void Player::SetState(PlayerState state)
