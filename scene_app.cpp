@@ -388,7 +388,7 @@ void SceneApp::GameUpdate(float frame_time)
 
 	if (keyboards->IsKeyPressed(gef::Keyboard::KC_SPACE))
 	{
-		player_body_->ApplyForceToCenter(b2Vec2(0, 175), true); // 350 did work with previous mass
+		player_body_->ApplyForceToCenter(b2Vec2(0, 100), true); // 350 did work with previous mass
 		player_.SetState(JUMP);
 	}
 
@@ -404,7 +404,8 @@ void SceneApp::GameUpdate(float frame_time)
 		if (player_body_->GetLinearVelocity().x <= 5)
 		{
 	
-		player_body_->ApplyForceToCenter(b2Vec2(1.25, player_body_->GetLinearVelocity().y), true);
+		//player_body_->ApplyForceToCenter(b2Vec2(1.25, player_body_->GetLinearVelocity().y), true);
+			player_body_->ApplyForceToCenter(b2Vec2(1.25, 0), true);
 		
 		}
 		else if (player_body_->GetLinearVelocity().x > 5)
@@ -417,7 +418,8 @@ void SceneApp::GameUpdate(float frame_time)
 	{
 		if (player_body_->GetLinearVelocity().x >= -5)
 		{
-			player_body_->ApplyForceToCenter(b2Vec2(-1.25, player_body_->GetLinearVelocity().y), true);
+			//player_body_->ApplyForceToCenter(b2Vec2(-1.25, player_body_->GetLinearVelocity().y), true);
+			player_body_->ApplyForceToCenter(b2Vec2(-1.25, 0), true);
 		}
 		else if (player_body_->GetLinearVelocity().x < -5)
 		{

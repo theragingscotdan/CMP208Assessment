@@ -10,7 +10,7 @@ void Player::InitPlayer(PrimitiveBuilder* primBuild, b2World* world, b2Body* pla
 {
 	// setup the mesh for the player
 	set_mesh(primBuild->GetDefaultCubeMesh());
-	SetScale(gef::Vector4(1.0, 1.0, 1.0));
+	SetScale(gef::Vector4(0.5, 0.5, 0.5));
 
 	// create a physics body for the player
 	b2BodyDef player_body_def;
@@ -21,7 +21,7 @@ void Player::InitPlayer(PrimitiveBuilder* primBuild, b2World* world, b2Body* pla
 
 	// create the shape for the player
 	b2PolygonShape player_shape;
-	player_shape.SetAsBox(0.5f, 0.5f);
+	player_shape.SetAsBox(0.25f, 0.25f);
 
 	// create the fixture
 	b2FixtureDef player_fixture_def;
