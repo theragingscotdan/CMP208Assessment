@@ -364,7 +364,7 @@ void SceneApp::GameInit()
 	InitGround();
 	player_.InitPlayer(primitive_builder_, world_);
 	//initialise->InitGround(primitive_builder_, world_, ground_mesh_, &ground_, ground_body_);
-	platforms_->InitPlatforms(primitive_builder_, world_, 20.0, 10.0);
+	platforms_->InitPlatforms(primitive_builder_, world_, 5.0, 5.0);
 }
 
 void SceneApp::GameRelease()
@@ -485,9 +485,15 @@ void SceneApp::GameRender()
 	projection_matrix = platform_.PerspectiveProjectionFov(fov, aspect_ratio, 0.1f, 100.0f);
 	renderer_3d_->set_projection_matrix(projection_matrix);
 
+	float player_pos = player_.GetBody()->GetPosition().y;
+
+	if (player_pos < ground_body_->GetPosition().y + 4)
+	{
+		player_pos = ground_body_->GetPosition().y + 4;
+	}
 	// view
-	gef::Vector4 camera_eye(0.0f, player_.GetBody()->GetPosition().y, 10.0f);
-	gef::Vector4 camera_lookat(0.0f, player_.GetBody()->GetPosition().y, 0.0f);
+	gef::Vector4 camera_eye(0.0f, player_pos, 10.0f);
+	gef::Vector4 camera_lookat(0.0f, player_pos, 0.0f);
 	gef::Vector4 camera_up(0.0f, 1.0f, 0.0f);
 	gef::Matrix44 view_matrix;
 	view_matrix.LookAt(camera_eye, camera_lookat, camera_up);
@@ -499,6 +505,8 @@ void SceneApp::GameRender()
 
 	// draw ground
 	renderer_3d_->DrawMesh(ground_);
+
+	renderer_3d_->DrawMesh(*platforms_);
 
 	// draw player
 	renderer_3d_->set_override_material(&primitive_builder_->red_material());

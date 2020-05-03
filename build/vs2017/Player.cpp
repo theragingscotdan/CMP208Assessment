@@ -15,7 +15,7 @@ void Player::InitPlayer(PrimitiveBuilder* primBuild, b2World* world)
 	// create a physics body for the player
 	b2BodyDef player_body_def;
 	player_body_def.type = b2_dynamicBody;
-	player_body_def.position = b2Vec2(0.0f, 4.0f);
+	player_body_def.position = b2Vec2(0.0f, -3.0f);
 
 	player_body_ = world->CreateBody(&player_body_def);
 
