@@ -27,7 +27,8 @@ public:
 
 	void SetState(PlayerState state);
 	b2Body* GetBody();
-
+	void SetScore(int score_);
+	int GetScore();
 	
 
 private:
@@ -35,5 +36,6 @@ private:
 	
 	PlayerState state_;
 	bool canJump = false;
+	int m_score = 0;
 };
 

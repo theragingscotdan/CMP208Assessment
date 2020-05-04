@@ -36,6 +36,11 @@ void GameObject::SetScale(gef::Vector4 _scale)
 	scale_ = _scale;
 }
 
+OBJECT_TYPE GameObject::GetType()
+{
+	return OBJECT_TYPE();
+}
+
 //Player::Player()
 //{
 //	set_type(PLAYER);

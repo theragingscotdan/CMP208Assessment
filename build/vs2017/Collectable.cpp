@@ -21,8 +21,8 @@ void Collectable::InitCollectable(PrimitiveBuilder* primBuild, b2World* world, f
 
 	// create a physics body for the player
 	b2BodyDef collect_body_def;
-	collect_body_def.type = b2_staticBody;
-	collect_body_def.position = b2Vec2(0.0f, -3.0f);
+	collect_body_def.type = b2_dynamicBody;
+	collect_body_def.position = b2Vec2(x, y);
 
 	collect_body_ = world->CreateBody(&collect_body_def);
 
@@ -44,4 +44,6 @@ void Collectable::InitCollectable(PrimitiveBuilder* primBuild, b2World* world, f
 
 	// create a connection between the rigid body and GameObject
 	collect_body_->SetUserData(this);
+
+	set_type(COLLECTABLE);
 }

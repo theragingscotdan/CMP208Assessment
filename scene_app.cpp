@@ -181,7 +181,9 @@ void SceneApp::DrawHUD()
 	if(font_)
 	{
 		// display frame rate
+	
 		font_->RenderText(sprite_renderer_, gef::Vector4(850.0f, 510.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "FPS: %.1f", fps_);
+		font_->RenderText(sprite_renderer_, gef::Vector4(150.0f, 150.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "Score: %i", player_.GetScore());
 	}
 }
 
@@ -243,7 +245,13 @@ void SceneApp::UpdateSimulation(float frame_time)
 			{
 				if (gameObjectA->type() == PLAYER)
 				{
-					player = (Player*)bodyA->GetUserData();
+					//player = (Player*)bodyA->GetUserData();
+					if (!gameObjectB|| gameObjectB->GetType() == COLLECTABLE)
+					{
+						//bodyB->DestroyFixture();
+						bodyB->SetEnabled(false);
+						//player->SetScore(100);
+					}
 				}
 			}
 
@@ -358,7 +366,7 @@ void SceneApp::GameInit()
 	platforms_[8]->InitPlatforms(primitive_builder_, world_, -1.25, 12.3);	
 	platforms_[9]->InitPlatforms(primitive_builder_, world_, -3.25, 14.5);
 
-	collect_[0]->InitCollectable(primitive_builder_, world_, 3.0, 10.0);
+	collect_[0]->InitCollectable(primitive_builder_, world_, 5.0, 3.5);
 }
 
 void SceneApp::GameRelease()

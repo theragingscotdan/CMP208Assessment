@@ -8,7 +8,8 @@ enum OBJECT_TYPE
 {
 	PLAYER,
 	ENEMY,
-	BULLET
+	BULLET,
+	COLLECTABLE
 };
 
 class GameObject : public gef::MeshInstance
@@ -21,6 +22,7 @@ public:
 	void SetScale(gef::Vector4 _scale);
 
 	inline OBJECT_TYPE type() { return type_; }
+	OBJECT_TYPE GetType();
 private:
 	OBJECT_TYPE type_;
 	gef::Vector4 scale_;
