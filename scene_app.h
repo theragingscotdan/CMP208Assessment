@@ -11,6 +11,7 @@
 #include "Init.h"
 #include "Player.h"
 #include "Platform.h"
+#include "Collectable.h"
 
 // FRAMEWORK FORWARD DECLARATIONS
 namespace gef
@@ -75,7 +76,9 @@ private:
 	GameObject ground_;
 	b2Body* ground_body_;
 
-	platforms* platforms_;
+	platforms* platforms_[10];
+	Collectable* collect_[20];
+
 
 	// audio variables
 	int sfx_id_;

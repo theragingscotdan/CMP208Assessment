@@ -11,6 +11,9 @@
 #include "load_texture.h"
 #include <input/keyboard.h>
 
+const int noOfPlat = 10;
+const int noOfCollect = 20;
+
 SceneApp::SceneApp(gef::Platform& platform) :
 	Application(platform),
 	sprite_renderer_(NULL),
@@ -31,7 +34,17 @@ void SceneApp::Init()
 
 	// initialise input manager
 	input_manager_ = gef::InputManager::Create(platform_);
-	platforms_ = new platforms;
+	
+	for (int i = 0; i < noOfPlat; ++i)
+	{
+		platforms_[i] = new platforms;
+	}
+
+	for (int i = 0; i < noOfCollect; ++i)
+	{
+		collect_[i] = new Collectable;
+	}
+	
 
 	initialise = new Initial;
 
@@ -53,8 +66,17 @@ void SceneApp::CleanUp()
 	delete initialise;
 	initialise = NULL;
 
-	delete platforms_;
-	platforms_ = NULL;
+	for (int i = 0; i < noOfPlat; ++i)
+	{
+		delete platforms_[i];
+		platforms_[i] = NULL;
+	}
+
+	for (int i = 0; i < noOfCollect; ++i)
+	{
+		delete collect_[i];
+		collect_[i] = NULL;
+	}
 
 	ReleaseGameState();
 }
@@ -88,9 +110,6 @@ bool SceneApp::Update(float frame_time)
 	return true;
 }
 
-
-
-
 void SceneApp::Render()
 {
 	//InitGameState();
@@ -108,44 +127,10 @@ void SceneApp::Render()
 		GameRender();
 		
 	break;
-
-	
-
+		
 	}
 	
 }
-
-//void SceneApp::InitPlayer()
-//{
-//	// setup the mesh for the player
-//	player_.set_mesh(primitive_builder_->GetDefaultCubeMesh());
-//	player_.SetScale(gef::Vector4(0.5, 0.5, 0.5));
-//
-//	// create a physics body for the player
-//	b2BodyDef player_body_def;
-//	player_body_def.type = b2_dynamicBody;
-//	player_body_def.position = b2Vec2(0.0f, 4.0f);
-//
-//	player_body_ = world_->CreateBody(&player_body_def);
-//
-//	// create the shape for the player
-//	b2PolygonShape player_shape;
-//	player_shape.SetAsBox(0.25f, 0.25f);
-//
-//	// create the fixture
-//	b2FixtureDef player_fixture_def;
-//	player_fixture_def.shape = &player_shape;
-//	player_fixture_def.density = 1.0f;
-//
-//	// create the fixture on the rigid body
-//	player_body_->CreateFixture(&player_fixture_def);
-//
-//	// update visuals from simulation data
-//	player_.UpdateFromSimulation(player_body_);
-//
-//	// create a connection between the rigid body and GameObject
-//	player_body_->SetUserData(&player_);
-//}
 
 void SceneApp::InitGround()
 {
@@ -178,7 +163,6 @@ void SceneApp::InitGround()
 	// update visuals from simulation data
 	ground_.UpdateFromSimulation(ground_body_);
 }
-
 
 void SceneApp::InitFont()
 {
@@ -360,11 +344,21 @@ void SceneApp::GameInit()
 	b2Vec2 gravity(0.0f, -9.81f);
 	world_ = new b2World(gravity);
 
-	//InitPlayer();
 	InitGround();
 	player_.InitPlayer(primitive_builder_, world_);
 	//initialise->InitGround(primitive_builder_, world_, ground_mesh_, &ground_, ground_body_);
-	platforms_->InitPlatforms(primitive_builder_, world_, 5.0, 5.0);
+	platforms_[0]->InitPlatforms(primitive_builder_, world_, 4.5, 3.0);
+	platforms_[1]->InitPlatforms(primitive_builder_, world_, 5.0, 5.0);
+	platforms_[2]->InitPlatforms(primitive_builder_, world_, 1.25, 1.0);
+	platforms_[3]->InitPlatforms(primitive_builder_, world_, -5.25, -2.0);
+	platforms_[4]->InitPlatforms(primitive_builder_, world_, -1.25, -1.0);
+	platforms_[5]->InitPlatforms(primitive_builder_, world_, -5.25, 7);
+	platforms_[6]->InitPlatforms(primitive_builder_, world_, -1.0, 9.0);
+	platforms_[7]->InitPlatforms(primitive_builder_, world_, 4.25, 10.5);	
+	platforms_[8]->InitPlatforms(primitive_builder_, world_, -1.25, 12.3);	
+	platforms_[9]->InitPlatforms(primitive_builder_, world_, -3.25, 14.5);
+
+	collect_[0]->InitCollectable(primitive_builder_, world_, 3.0, 10.0);
 }
 
 void SceneApp::GameRelease()
@@ -388,13 +382,11 @@ void SceneApp::GameUpdate(float frame_time)
 {
 	const gef::SonyController* controller = input_manager_->controller_input()->GetController(0);
 	const gef::Keyboard* keyboards = input_manager_->keyboard();
-
 	
-
 	if (keyboards->IsKeyPressed(gef::Keyboard::KC_SPACE))
 	{
 		player_.GetBody()->ApplyForceToCenter(b2Vec2(0, 100), true); // 350 did work with previous mass
-		player_.SetState(JUMP);
+		player_.SetState(Player::JUMP);
 	}
 
 	if (keyboards->IsKeyPressed(gef::Keyboard::KC_R))
@@ -435,7 +427,7 @@ void SceneApp::GameUpdate(float frame_time)
 	// to be used in future
 	if (keyboards->IsKeyDown(gef::Keyboard::KC_E))
 	{
-		player_.SetState(ATTACK);
+		player_.SetState(Player::ATTACK);
 	}
 
 	// attempt to wrap the player
@@ -458,21 +450,9 @@ void SceneApp::GameUpdate(float frame_time)
 
 	player_.Update(frame_time);
 	UpdateSimulation(frame_time);
-
-	/*if (controller)
-	{
-		if (controller->buttons_pressed() == gef_SONY_CTRL_CROSS)
-		{
-			ReleaseGameState();
-			game_state = INIT;
-			InitGameState();
-		}
-	}*/
-	// if pressed, set the state to jumping
-
+	
 
 }
-
 
 void SceneApp::GameRender()
 {
@@ -506,7 +486,15 @@ void SceneApp::GameRender()
 	// draw ground
 	renderer_3d_->DrawMesh(ground_);
 
-	renderer_3d_->DrawMesh(*platforms_);
+	for (int i = 0; i < noOfPlat; ++i)
+	{
+		renderer_3d_->DrawMesh(*platforms_[i]);
+	}
+
+	for (int i = 0; i < noOfCollect; ++i)
+	{
+		renderer_3d_->DrawMesh(*collect_[i]);
+	}
 
 	// draw player
 	renderer_3d_->set_override_material(&primitive_builder_->red_material());

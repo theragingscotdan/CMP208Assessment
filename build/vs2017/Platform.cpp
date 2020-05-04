@@ -7,12 +7,12 @@ platforms::platforms()
 
 void platforms::InitPlatforms(PrimitiveBuilder* primBuild, b2World* world, float x, float y)
 {
-	gef::Vector4 ground_half_dimensions(2.0f, 0.125f, 0.5f);
+	gef::Vector4 ground_half_dimensions(1.0f, 0.0625f, 0.5f);
 	SetScale(gef::Vector4(1.0, 1.0, 1.0));
 
 	// setup the mesh for the ground
-	primBuild->CreateBoxMesh(ground_half_dimensions);
-	set_mesh(platform_mesh_);
+	//primBuild->CreateBoxMesh(ground_half_dimensions);
+	set_mesh(primBuild->CreateBoxMesh(ground_half_dimensions));
 
 	// create a physics body
 	b2BodyDef body_def;

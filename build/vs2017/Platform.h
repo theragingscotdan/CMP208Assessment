@@ -15,7 +15,7 @@ public:
 protected:
 
 private:
-	gef::Mesh* platform_mesh_;
+	//gef::Mesh* platform_mesh_;
 	b2Body* platform_body_;
 
 
