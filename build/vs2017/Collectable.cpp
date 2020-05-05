@@ -42,10 +42,11 @@ void Collectable::InitCollectable(PrimitiveBuilder* primBuild, b2World* world, f
 	// update visuals from simulation data
 	UpdateFromSimulation(collect_body_);
 
+	set_type(COLLECTABLE);
 	// create a connection between the rigid body and GameObject
 	collect_body_->SetUserData(this);
 
-	set_type(COLLECTABLE);
+	
 }
 
 b2Body * Collectable::GetBody()

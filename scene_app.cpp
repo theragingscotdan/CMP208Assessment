@@ -235,12 +235,73 @@ void SceneApp::UpdateSimulation(float frame_time)
 	{
 		if (contact->IsTouching())
 		{
-			// get the colliding bodies
+		//	// get the colliding bodies
+		//	b2Body* bodyA = contact->GetFixtureA()->GetBody();
+		//	b2Body* bodyB = contact->GetFixtureB()->GetBody();
+
+		//	// DO COLLISION RESPONSE HERE
+		//	Player* player = NULL;
+
+		//	GameObject* gameObjectA = NULL;
+		//	GameObject* gameObjectB = NULL;
+
+		//	gameObjectA = (GameObject*)bodyA->GetUserData();
+		//	gameObjectB = (GameObject*)bodyB->GetUserData();
+
+		//	if (gameObjectA)
+		//	{
+		//		if (gameObjectA->type() == PLAYER)
+		//		{
+		//			gef::DebugOut("%s \n", gameObjectB->GetType());
+		//			if (gameObjectB->GetType() == COLLECTABLE)
+		//			{
+
+		//				//world_->DestroyBody(bodyB);
+		//				//player_.AddScore(100);
+		//				player->AddScore(100);
+
+		//			}
+		//		}
+		//	}
+		//	//		else if (gameObjectB->GetType() == PLATFORM)
+		//	//		{
+
+		//	//			//player_.AddScore(100);
+		//	//			player->AddScore(100);
+
+		//	//		}
+		//	//		//player = (Player*)bodyA->GetUserData();
+		//	//	}
+		//	//}
+
+		//	if (gameObjectB)
+		//	{
+		//		if (gameObjectB->type() == PLAYER)
+		//		{
+		//			//gef::DebugOut("working \n");
+		//			//player_ = (Player*)bodyB->GetUserData();
+		//			if (gameObjectA->GetType() == COLLECTABLE)
+		//			{
+		//				world_->DestroyBody(bodyA);
+		//				player_.AddScore(100);
+		//				player->AddScore(100);
+		//			}
+		//			else if (gameObjectA->GetType() == PLATFORM)
+		//			{
+
+		//				player_.AddScore(100);
+		//				player->AddScore(100);
+
+		//			}
+		//		}
+		//	}
+
 			b2Body* bodyA = contact->GetFixtureA()->GetBody();
 			b2Body* bodyB = contact->GetFixtureB()->GetBody();
 
 			// DO COLLISION RESPONSE HERE
 			Player* player = NULL;
+			Collectable* collect = NULL;
 
 			GameObject* gameObjectA = NULL;
 			GameObject* gameObjectB = NULL;
@@ -248,80 +309,43 @@ void SceneApp::UpdateSimulation(float frame_time)
 			gameObjectA = (GameObject*)bodyA->GetUserData();
 			gameObjectB = (GameObject*)bodyB->GetUserData();
 
-			if (gameObjectA && gameObjectB)
+
+			if (gameObjectA)
 			{
-				if (gameObjectA->type() == PLAYER)
+				switch (gameObjectA->type())
 				{
-					gef::DebugOut("%s \n", gameObjectB->GetType());
-					if (gameObjectB->GetType() == COLLECTABLE)
-					{
+				case PLAYER:
+					player = (Player*)bodyA->GetUserData();
+					break;
 
-						//world_->DestroyBody(bodyB);
-						//player_.AddScore(100);
-						player->AddScore(100);
-
-					}
+				case COLLECTABLE:
+					collect = (Collectable*)bodyA->GetUserData();
+					break;
 				}
 			}
-			//		else if (gameObjectB->GetType() == PLATFORM)
-			//		{
-
-			//			//player_.AddScore(100);
-			//			player->AddScore(100);
-
-			//		}
-			//		//player = (Player*)bodyA->GetUserData();
-			//	}
-			//}
 
 			if (gameObjectB)
 			{
-				if (gameObjectB->type() == PLAYER)
+				switch (gameObjectB->type())
 				{
-					//gef::DebugOut("working \n");
-					//player_ = (Player*)bodyB->GetUserData();
-					if (gameObjectA->GetType() == COLLECTABLE)
-					{
-						world_->DestroyBody(bodyA);
-						player_.AddScore(100);
-						player->AddScore(100);
-					}
-					else if (gameObjectA->GetType() == PLATFORM)
-					{
+				case PLAYER:
+					player = (Player*)bodyB->GetUserData();
+					break;
 
-						player_.AddScore(100);
-						player->AddScore(100);
-
-					}
+				case COLLECTABLE:
+					collect = (Collectable*)bodyA->GetUserData();
+					break;
 				}
 			}
+
+			if (player && collect)
+			{
+				gef::DebugOut("Collide\n");
+				player->AddScore(100);
+				break;
+			}
+	
 		}
-
-			//if (player)
-			//{
-			//	//player->DecrementHealth();
-			//}
-
-		//	Player* player = NULL;
-		//	Collectable* collect = NULL;
-
-		//	if (gameObjectA->GetType() == PLAYER && gameObjectB->GetType() == COLLECTABLE)
-		//	{
-		//		player = (Player*)bodyA->GetUserData();
-		//		collect = (Collectable*)bodyB->GetUserData();
-		//	}
-		//	else if (gameObjectB->GetType() == PLAYER && gameObjectA->GetType() == COLLECTABLE)
-		//	{
-		//		player = (Player*)bodyB->GetUserData();
-		//		collect = (Collectable*)bodyA->GetUserData();
-		//	}
-
-		//	if (player && collect)
-		//	{
-		//		player->SetScore(100);
-		//		//world_->DestroyBody()
-		//	}
-		//}
 
 		// Get next contact point
 		contact = contact->GetNext();
@@ -421,6 +445,7 @@ void SceneApp::GameInit()
 	platforms_[9]->InitPlatforms(primitive_builder_, world_, -3.25, 14.5);
 	platforms_[10]->InitPlatforms(primitive_builder_, world_, 6.25, 16.0);
 	platforms_[11]->InitPlatforms(primitive_builder_, world_, -5.5, 17.9);
+	platforms_[12]->InitPlatforms(primitive_builder_, world_, 0, 19.3);
 
 
 	collect_[0]->InitCollectable(primitive_builder_, world_, 5.0, 3.5);

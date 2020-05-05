@@ -31,13 +31,15 @@ void Player::InitPlayer(PrimitiveBuilder* primBuild, b2World* world)
 	// create the fixture on the rigid body
 	player_body_->CreateFixture(&player_fixture_def);
 
+	set_type(PLAYER);
 	// update visuals from simulation data
 	UpdateFromSimulation(player_body_);
+	
 
 	// create a connection between the rigid body and GameObject
 	player_body_->SetUserData(this);
 
-	set_type(PLAYER);
+
 }
 
 void Player::Update(float frame_time)
