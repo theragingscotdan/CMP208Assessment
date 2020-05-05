@@ -11,6 +11,7 @@ public:
 	Collectable();
 	~Collectable();
 	void InitCollectable(PrimitiveBuilder* primBuild, b2World* world, float x, float y);
+	b2Body* GetBody();
 
 private:
 	bool isPickedUp;

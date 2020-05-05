@@ -7,9 +7,10 @@
 enum OBJECT_TYPE
 {
 	PLAYER,
+	COLLECTABLE,
 	ENEMY,
 	BULLET,
-	COLLECTABLE
+	PLATFORM
 };
 
 class GameObject : public gef::MeshInstance

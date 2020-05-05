@@ -32,6 +32,8 @@ void platforms::InitPlatforms(PrimitiveBuilder* primBuild, b2World* world, float
 	// create the fixture on the rigid body
 	platform_body_->CreateFixture(&fixture_def);
 
+	platform_body_->SetUserData(this);
+
 	// update visuals from simulation data
 	UpdateFromSimulation(platform_body_);
 }

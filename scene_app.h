@@ -39,7 +39,7 @@ public:
 	bool Update(float frame_time);
 	void Render();
 private:
-	void InitPlayer();
+	
 	void InitGround();
 	void InitFont();
 	void CleanUpFont();
@@ -76,7 +76,7 @@ private:
 	GameObject ground_;
 	b2Body* ground_body_;
 
-	platforms* platforms_[10];
+	platforms* platforms_[15];
 	Collectable* collect_[20];
 
 

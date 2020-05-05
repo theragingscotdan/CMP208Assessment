@@ -47,3 +47,8 @@ void Collectable::InitCollectable(PrimitiveBuilder* primBuild, b2World* world, f
 
 	set_type(COLLECTABLE);
 }
+
+b2Body * Collectable::GetBody()
+{
+	return collect_body_;
+}

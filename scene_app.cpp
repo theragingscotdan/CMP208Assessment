@@ -11,7 +11,7 @@
 #include "load_texture.h"
 #include <input/keyboard.h>
 
-const int noOfPlat = 10;
+const int noOfPlat = 15;
 const int noOfCollect = 20;
 
 SceneApp::SceneApp(gef::Platform& platform) :
@@ -44,6 +44,7 @@ void SceneApp::Init()
 	{
 		collect_[i] = new Collectable;
 	}
+	//collect_ = new Collectable;
 	
 
 	initialise = new Initial;
@@ -77,6 +78,8 @@ void SceneApp::CleanUp()
 		delete collect_[i];
 		collect_[i] = NULL;
 	}
+	/*delete collect_;
+	collect_ = NULL;*/
 
 	ReleaseGameState();
 }
@@ -183,7 +186,11 @@ void SceneApp::DrawHUD()
 		// display frame rate
 	
 		font_->RenderText(sprite_renderer_, gef::Vector4(850.0f, 510.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "FPS: %.1f", fps_);
-		font_->RenderText(sprite_renderer_, gef::Vector4(150.0f, 150.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "Score: %i", player_.GetScore());
+		if (!game_state == INIT)
+		{
+			font_->RenderText(sprite_renderer_, gef::Vector4(0.0f, 0.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "Score: %i", player_.GetScore());
+			font_->RenderText(sprite_renderer_, gef::Vector4(850.0f, 0.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "Lives: %i", player_.GetLives());
+		}
 	}
 }
 
@@ -246,11 +253,25 @@ void SceneApp::UpdateSimulation(float frame_time)
 				if (gameObjectA->type() == PLAYER)
 				{
 					//player = (Player*)bodyA->GetUserData();
-					if (!gameObjectB|| gameObjectB->GetType() == COLLECTABLE)
+					gef::DebugOut("%s \n" , gameObjectB->GetType());
+					if (gameObjectB->GetType() == COLLECTABLE)
 					{
-						//bodyB->DestroyFixture();
-						bodyB->SetEnabled(false);
-						//player->SetScore(100);
+
+						world_->DestroyBody(bodyB);
+						player_.AddScore(100);
+						player->AddScore(100);
+
+					}
+					else if (gameObjectB->GetType() == PLATFORM)
+					{
+
+						player_.AddScore(100);
+						player->AddScore(100);
+
+					}
+					else if (gameObjectB->GetType() == NULL)
+					{
+						//gef::DebugOut("aaaaaaaworking \n");
 					}
 				}
 			}
@@ -259,15 +280,50 @@ void SceneApp::UpdateSimulation(float frame_time)
 			{
 				if (gameObjectB->type() == PLAYER)
 				{
-					player = (Player*)bodyB->GetUserData();
+					//gef::DebugOut("working \n");
+					//player_ = (Player*)bodyB->GetUserData();
+					if (gameObjectA->GetType() == COLLECTABLE)
+					{
+						world_->DestroyBody(bodyA);
+						player_.AddScore(100);
+						player->AddScore(100);
+					}
+					else if (gameObjectA->GetType() == PLATFORM)
+					{
+
+						player_.AddScore(100);
+						player->AddScore(100);
+
+					}
 				}
 			}
-
-			if (player)
-			{
-				//player->DecrementHealth();
-			}
 		}
+
+			//if (player)
+			//{
+			//	//player->DecrementHealth();
+			//}
+
+		//	Player* player = NULL;
+		//	Collectable* collect = NULL;
+
+		//	if (gameObjectA->GetType() == PLAYER && gameObjectB->GetType() == COLLECTABLE)
+		//	{
+		//		player = (Player*)bodyA->GetUserData();
+		//		collect = (Collectable*)bodyB->GetUserData();
+		//	}
+		//	else if (gameObjectB->GetType() == PLAYER && gameObjectA->GetType() == COLLECTABLE)
+		//	{
+		//		player = (Player*)bodyB->GetUserData();
+		//		collect = (Collectable*)bodyA->GetUserData();
+		//	}
+
+		//	if (player && collect)
+		//	{
+		//		player->SetScore(100);
+		//		//world_->DestroyBody()
+		//	}
+		//}
 
 		// Get next contact point
 		contact = contact->GetNext();
@@ -365,8 +421,12 @@ void SceneApp::GameInit()
 	platforms_[7]->InitPlatforms(primitive_builder_, world_, 4.25, 10.5);	
 	platforms_[8]->InitPlatforms(primitive_builder_, world_, -1.25, 12.3);	
 	platforms_[9]->InitPlatforms(primitive_builder_, world_, -3.25, 14.5);
+	platforms_[10]->InitPlatforms(primitive_builder_, world_, 6.25, 16.0);
+	platforms_[11]->InitPlatforms(primitive_builder_, world_, -5.5, 17.9);
+
 
 	collect_[0]->InitCollectable(primitive_builder_, world_, 5.0, 3.5);
+	//collect_->InitCollectable(primitive_builder_, world_, 5.0, 3.5);
 }
 
 void SceneApp::GameRelease()
@@ -457,6 +517,8 @@ void SceneApp::GameUpdate(float frame_time)
 	}
 
 	player_.Update(frame_time);
+	collect_[0]->UpdateFromSimulation(collect_[0]->GetBody());
+	//collect_->UpdateFromSimulation(collect_->GetBody());
 	UpdateSimulation(frame_time);
 	
 
@@ -503,6 +565,7 @@ void SceneApp::GameRender()
 	{
 		renderer_3d_->DrawMesh(*collect_[i]);
 	}
+	//renderer_3d_->DrawMesh(*collect_);
 
 	// draw player
 	renderer_3d_->set_override_material(&primitive_builder_->red_material());

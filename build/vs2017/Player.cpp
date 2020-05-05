@@ -37,7 +37,7 @@ void Player::InitPlayer(PrimitiveBuilder* primBuild, b2World* world)
 	// create a connection between the rigid body and GameObject
 	player_body_->SetUserData(this);
 
-	//set_type(PLAYER);
+	set_type(PLAYER);
 }
 
 void Player::Update(float frame_time)
@@ -62,7 +62,7 @@ b2Body* Player::GetBody()
 	return player_body_;
 }
 
-void Player::SetScore(int score_)
+void Player::AddScore(int score_)
 {
 	m_score += score_;
 	
@@ -72,3 +72,9 @@ int Player::GetScore()
 {
 	return m_score;
 }
+
+int Player::GetLives()
+{
+	return m_lives;
+}
+
