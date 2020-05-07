@@ -452,7 +452,8 @@ void SceneApp::GameInit()
 
 
 	collect_[0]->InitCollectable(primitive_builder_, world_, -5.0, -0.5);
-	collect_[1]->InitCollectable(primitive_builder_, world_, 5.0, 3.5);
+	collect_[1]->InitCollectable(primitive_builder_, world_, 2.5, 10.5);
+	collect_[2]->InitCollectable(primitive_builder_, world_, 5.0, 3.5);
 	//collect_->InitCollectable(primitive_builder_, world_, 5.0, 3.5);
 }
 
