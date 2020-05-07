@@ -446,9 +446,13 @@ void SceneApp::GameInit()
 	platforms_[10]->InitPlatforms(primitive_builder_, world_, 6.25, 16.0);
 	platforms_[11]->InitPlatforms(primitive_builder_, world_, -5.5, 17.9);
 	platforms_[12]->InitPlatforms(primitive_builder_, world_, 0, 19.3);
+	platforms_[13]->InitPlatforms(primitive_builder_, world_, 2.0, 21.5);
+	platforms_[14]->InitPlatforms(primitive_builder_, world_, -2.0, 23.4);
+	
 
 
-	collect_[0]->InitCollectable(primitive_builder_, world_, 5.0, 3.5);
+	collect_[0]->InitCollectable(primitive_builder_, world_, -5.0, -0.5);
+	collect_[1]->InitCollectable(primitive_builder_, world_, 5.0, 3.5);
 	//collect_->InitCollectable(primitive_builder_, world_, 5.0, 3.5);
 }
 
