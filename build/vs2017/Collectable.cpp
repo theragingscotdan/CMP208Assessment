@@ -26,7 +26,7 @@ void Collectable::InitCollectable(PrimitiveBuilder* primBuild, b2World* world, f
 
 	// create the shape for the player
 	b2PolygonShape collect_shape;
-	collect_shape.SetAsBox(0.125f, 0.125f);
+	collect_shape.SetAsBox(0.45f, 0.125f);
 
 
 	// create the fixture

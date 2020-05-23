@@ -34,6 +34,8 @@ public:
 	void ReduceHealth();// (int health_);
 	void LoseLife();
 	bool GetJumping();
+	void SetLives(int lives);
+	void ResetScore();
 
 private:
 	b2Body* player_body_;

@@ -117,4 +117,14 @@ bool Player::GetJumping()
 	return canJump;
 }
 
+void Player::SetLives(int lives)
+{
+	m_lives = lives;
+}
+
+void Player::ResetScore()
+{
+	m_score = 0;
+}
+
 

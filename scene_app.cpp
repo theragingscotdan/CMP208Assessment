@@ -63,7 +63,7 @@ void SceneApp::Init()
 			collect_[i]->set_mesh(GetMeshFromSceneAssets(scene_assets_));
 	}
 
-	// the use of pingu is an in-joke between some members of a discord server
+	// the use of pingu is an in-joke between some members of a discord server (NOOT NOOT)
 	scene_assets_ = LoadSceneAssets(platform_, "pingu.scn");
 	if (scene_assets_)
 	{
@@ -338,6 +338,7 @@ void SceneApp::UpdateSimulation(float frame_time)
 					gef::DebugOut("Collide\n");
 					player->AddScore(100);
 					//collect->SetPickUp(true);
+					//GameCleanUp();
 					//world_->DestroyBody(collect->GetBody());
 					//delete collect;
 
@@ -390,12 +391,16 @@ void SceneApp::UpdateSimulation(float frame_time)
 
 void SceneApp::GameCleanUp()
 {
-	/*
+
 	for (int i = 0; i < noOfCollect; ++i)
 	{
-		if (collect_[i]->SetPickUp())
-			world_->DestroyBody(collect_[i])
-	}*/
+		if (collect_[i]->GetPickUp() == true)
+		{
+			world_->DestroyBody(collect_[i]->GetBody());
+			delete collect_[i];
+			collect_[i] = NULL;
+		}
+	}
 }
 void SceneApp::FrontendInit()
 {
@@ -526,9 +531,9 @@ void SceneApp::GameInit()
 	collect_[4]->InitCollectable(primitive_builder_, world_,-3.25, 16.5);	
 	collect_[5]->InitCollectable(primitive_builder_, world_, 5.0, 13.5);	
 	collect_[6]->InitCollectable(primitive_builder_, world_, -6.25, 18.0);	
-	collect_[7]->InitCollectable(primitive_builder_, world_, -2.0, 23.5);	
+	collect_[7]->InitCollectable(primitive_builder_, world_, -2.0, 24.5);	
 	collect_[8]->InitCollectable(primitive_builder_, world_, 5.0, 23.5);	
-	collect_[9]->InitCollectable(primitive_builder_, world_, 5.0, 27.5);
+	collect_[9]->InitCollectable(primitive_builder_, world_, 5.0, 28.5);
 
 	/*for (int i = 0; i < noOfEnemy; ++i)
 	{
@@ -542,6 +547,8 @@ void SceneApp::GameInit()
 	//}
 
 	jumpSE = audio_manager_->LoadSample("jump.wav", platform_);
+	player_.SetLives(3);
+	player_.ResetScore();
 	
 }
 
@@ -664,6 +671,7 @@ void SceneApp::GameUpdate(float frame_time)
 		if (keyboards->IsKeyDown(gef::Keyboard::KC_RETURN))
 		{
 			game_state = INIT;
+		
 		}
 	}
 
