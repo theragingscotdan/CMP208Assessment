@@ -46,11 +46,24 @@ void Player::Update(float frame_time)
 {
 	if (state_ = JUMP)
 	{
-		canJump = true;
+		m_jumpEnd--;
 	} 
-	else
+	/*else
 	{
 		canJump = false;
+	}*/
+
+	if (m_health <= 0)
+	{
+		
+		m_lives--;
+		m_health = 3;
+		
+	}
+
+	if (m_lives <= 0)
+	{
+		// game over
 	}
 }
 
@@ -79,4 +92,25 @@ int Player::GetLives()
 {
 	return m_lives;
 }
+
+int Player::GetHealth()
+{
+	return m_health;
+}
+
+void Player::ReduceHealth()//int health_)
+{
+	m_health -= 1;
+}
+
+void Player::LoseLife()
+{
+	m_lives -= 1;
+}
+
+int Player::GetJumping()
+{
+	return m_jumpEnd;
+}
+
 

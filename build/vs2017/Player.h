@@ -30,6 +30,10 @@ public:
 	void AddScore(int score_);
 	int GetScore();
 	int GetLives();
+	int GetHealth();
+	void ReduceHealth();// (int health_);
+	void LoseLife();
+	int GetJumping();
 
 private:
 	b2Body* player_body_;
@@ -38,5 +42,7 @@ private:
 	bool canJump = false;
 	int m_score = 0;
 	int m_lives = 3;
+	int m_health = 3;
+	int m_jumpEnd = 0;
 };
 

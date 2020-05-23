@@ -6,12 +6,14 @@
 #include "primitive_builder.h"
 #include <graphics/mesh_instance.h>
 #include <input/input_manager.h>
+#include <audio/audio_manager.h>
 #include <box2d/Box2D.h>
 #include "game_object.h"
 #include "Init.h"
 #include "Player.h"
 #include "Platform.h"
 #include "Collectable.h"
+#include "Enemy.h"
 
 // FRAMEWORK FORWARD DECLARATIONS
 namespace gef
@@ -25,9 +27,11 @@ namespace gef
 
 enum GameState
 {
+	//MENU,
+	OPTIONS,
 	INIT,
 	LEVEL1,
-	LEVEL2
+	GAMEOVER
 };
 
 class SceneApp : public gef::Application
@@ -51,6 +55,7 @@ private:
 	gef::Font* font_;
 	gef::InputManager* input_manager_;
 	Initial* initialise;
+	gef::AudioManager* audio_manager_;
 
 
 	//
@@ -76,12 +81,14 @@ private:
 	GameObject ground_;
 	b2Body* ground_body_;
 
-	platforms* platforms_[15];
-	Collectable* collect_[20];
+	platforms* platforms_[20];
+	Collectable* collect_[30];
+	Enemy* enemy_[6];
 
 
 	// audio variables
-	int sfx_id_;
+	//int sfx_id_;
+	int jumpSE = -1;
 	int sfx_voice_id_;
 
 	float fps_;

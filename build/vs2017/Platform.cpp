@@ -37,3 +37,14 @@ void platforms::InitPlatforms(PrimitiveBuilder* primBuild, b2World* world, float
 	// update visuals from simulation data
 	UpdateFromSimulation(platform_body_);
 }
+
+void platforms::MovingPlatforms()
+{
+	// this was inspired and adapted from https://rotatingcanvas.com/moving-platforms-in-box2d/
+
+	if (m_canMove)
+	{
+
+	}
+
+}

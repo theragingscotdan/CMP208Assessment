@@ -11,8 +11,9 @@
 #include "load_texture.h"
 #include <input/keyboard.h>
 
-const int noOfPlat = 15;
-const int noOfCollect = 20;
+const int noOfPlat = 20;
+const int noOfCollect = 30;
+const int noOfEnemy = 6;
 
 SceneApp::SceneApp(gef::Platform& platform) :
 	Application(platform),
@@ -44,10 +45,17 @@ void SceneApp::Init()
 	{
 		collect_[i] = new Collectable;
 	}
-	//collect_ = new Collectable;
+
+	for (int i = 0; i < noOfEnemy; ++i)
+	{
+		enemy_[i] = new Enemy;
+	}
 	
 
 	initialise = new Initial;
+
+	// initialise audio manager
+	audio_manager_ = gef::AudioManager::Create();
 
 	game_state = INIT;
 
@@ -67,19 +75,8 @@ void SceneApp::CleanUp()
 	delete initialise;
 	initialise = NULL;
 
-	for (int i = 0; i < noOfPlat; ++i)
-	{
-		delete platforms_[i];
-		platforms_[i] = NULL;
-	}
-
-	for (int i = 0; i < noOfCollect; ++i)
-	{
-		delete collect_[i];
-		collect_[i] = NULL;
-	}
-	/*delete collect_;
-	collect_ = NULL;*/
+	delete audio_manager_;
+	audio_manager_ = NULL;
 
 	ReleaseGameState();
 }
@@ -186,10 +183,10 @@ void SceneApp::DrawHUD()
 		// display frame rate
 	
 		font_->RenderText(sprite_renderer_, gef::Vector4(850.0f, 510.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "FPS: %.1f", fps_);
-		if (!game_state == INIT)
+		if (game_state == LEVEL1)
 		{
 			font_->RenderText(sprite_renderer_, gef::Vector4(0.0f, 0.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "Score: %i", player_.GetScore());
-			font_->RenderText(sprite_renderer_, gef::Vector4(850.0f, 0.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "Lives: %i", player_.GetLives());
+			font_->RenderText(sprite_renderer_, gef::Vector4(850.0f, 0.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "Health: %i", player_.GetLives());
 		}
 	}
 }
@@ -235,66 +232,7 @@ void SceneApp::UpdateSimulation(float frame_time)
 	{
 		if (contact->IsTouching())
 		{
-		//	// get the colliding bodies
-		//	b2Body* bodyA = contact->GetFixtureA()->GetBody();
-		//	b2Body* bodyB = contact->GetFixtureB()->GetBody();
-
-		//	// DO COLLISION RESPONSE HERE
-		//	Player* player = NULL;
-
-		//	GameObject* gameObjectA = NULL;
-		//	GameObject* gameObjectB = NULL;
-
-		//	gameObjectA = (GameObject*)bodyA->GetUserData();
-		//	gameObjectB = (GameObject*)bodyB->GetUserData();
-
-		//	if (gameObjectA)
-		//	{
-		//		if (gameObjectA->type() == PLAYER)
-		//		{
-		//			gef::DebugOut("%s \n", gameObjectB->GetType());
-		//			if (gameObjectB->GetType() == COLLECTABLE)
-		//			{
-
-		//				//world_->DestroyBody(bodyB);
-		//				//player_.AddScore(100);
-		//				player->AddScore(100);
-
-		//			}
-		//		}
-		//	}
-		//	//		else if (gameObjectB->GetType() == PLATFORM)
-		//	//		{
-
-		//	//			//player_.AddScore(100);
-		//	//			player->AddScore(100);
-
-		//	//		}
-		//	//		//player = (Player*)bodyA->GetUserData();
-		//	//	}
-		//	//}
-
-		//	if (gameObjectB)
-		//	{
-		//		if (gameObjectB->type() == PLAYER)
-		//		{
-		//			//gef::DebugOut("working \n");
-		//			//player_ = (Player*)bodyB->GetUserData();
-		//			if (gameObjectA->GetType() == COLLECTABLE)
-		//			{
-		//				world_->DestroyBody(bodyA);
-		//				player_.AddScore(100);
-		//				player->AddScore(100);
-		//			}
-		//			else if (gameObjectA->GetType() == PLATFORM)
-		//			{
-
-		//				player_.AddScore(100);
-		//				player->AddScore(100);
-
-		//			}
-		//		}
-		//	}
+	
 
 			b2Body* bodyA = contact->GetFixtureA()->GetBody();
 			b2Body* bodyB = contact->GetFixtureB()->GetBody();
@@ -302,6 +240,7 @@ void SceneApp::UpdateSimulation(float frame_time)
 			// DO COLLISION RESPONSE HERE
 			Player* player = NULL;
 			Collectable* collect = NULL;
+			Enemy* enemy = NULL;
 
 			GameObject* gameObjectA = NULL;
 			GameObject* gameObjectB = NULL;
@@ -321,6 +260,9 @@ void SceneApp::UpdateSimulation(float frame_time)
 				case COLLECTABLE:
 					collect = (Collectable*)bodyA->GetUserData();
 					break;
+				case ENEMY:
+					enemy = (Enemy*)bodyA->GetUserData();
+					break;
 				}
 			}
 
@@ -335,7 +277,12 @@ void SceneApp::UpdateSimulation(float frame_time)
 				case COLLECTABLE:
 					collect = (Collectable*)bodyA->GetUserData();
 					break;
+				case ENEMY:
+					enemy = (Enemy*)bodyA->GetUserData();
+					break;
+				
 				}
+
 			}
 
 			if (player && collect)
@@ -343,6 +290,26 @@ void SceneApp::UpdateSimulation(float frame_time)
 				gef::DebugOut("Collide\n");
 				player->AddScore(100);
 				break;
+			}
+
+			if (player && enemy)
+			{
+				if (player->GetHealth() >0)
+				{
+					player->ReduceHealth();
+					player->GetBody()->ApplyForceToCenter(b2Vec2(-5.00, 0), true);
+					
+				}
+				// consider doing this in player
+				if (player->GetLives() > 0)
+				{
+					// apply a force to the player to knock back
+
+					// lose 1 hp (create a setter style in player to do this)
+					player->LoseLife();
+					// reload level
+				}
+			
 			}
 	
 		}
@@ -375,6 +342,11 @@ void SceneApp::FrontendUpdate(float frame_time)
 			ReleaseGameState();
 			game_state = LEVEL1;
 			InitGameState();
+		}
+
+		if (keyboards->IsKeyPressed(gef::Keyboard::KC_O))
+		{
+			game_state = OPTIONS;
 		}
 	}
 }
@@ -410,7 +382,23 @@ void SceneApp::FrontendRender()
 		gef::TJ_CENTRE,
 		"OR ENTER TO START");
 
+	font_->RenderText(
+		sprite_renderer_,
+		gef::Vector4(platform_.width()*0.5f, platform_.height()*0.5f + 112.0f, -0.99f),
+		1.0f,
+		0xffffffff,
+		gef::TJ_CENTRE,
+		"HOW TO PLAY: \n" "USE WASD OR ARROW KEYS TO MOVE PRESS SPACE TO JUMP");
 
+
+	//font_->RenderText(
+	//	sprite_renderer_,
+	//	gef::Vector4(platform_.width()*0.5f, platform_.height()*0.5f + 112.0f, -0.99f),
+	//	1.0f,
+	//	0xffffffff,
+	//	gef::TJ_CENTRE,
+	//	"USE W A S D TO MOVE \n");
+	//"USE SPACE TO JUMP" );
 	DrawHUD();
 	sprite_renderer_->End();
 }
@@ -448,13 +436,29 @@ void SceneApp::GameInit()
 	platforms_[12]->InitPlatforms(primitive_builder_, world_, 0, 19.3);
 	platforms_[13]->InitPlatforms(primitive_builder_, world_, 2.0, 21.5);
 	platforms_[14]->InitPlatforms(primitive_builder_, world_, -2.0, 23.4);
+	platforms_[15]->InitPlatforms(primitive_builder_, world_, -6.25, 25.5);
+	platforms_[16]->InitPlatforms(primitive_builder_, world_, 4.25, 27.3);
 	
 
 
 	collect_[0]->InitCollectable(primitive_builder_, world_, -5.0, -0.5);
 	collect_[1]->InitCollectable(primitive_builder_, world_, 2.5, 10.5);
 	collect_[2]->InitCollectable(primitive_builder_, world_, 5.0, 3.5);
-	//collect_->InitCollectable(primitive_builder_, world_, 5.0, 3.5);
+	collect_[3]->InitCollectable(primitive_builder_, world_, 5.0, 23.5);
+
+	/*for (int i = 0; i < noOfEnemy; ++i)
+	{
+		*/
+		enemy_[0]->InitEnemy(primitive_builder_, world_, b2Vec2(-1.0f, 6.0f));
+		enemy_[1]->InitEnemy(primitive_builder_, world_, b2Vec2(-3.0, 2.5));
+		enemy_[2]->InitEnemy(primitive_builder_, world_, b2Vec2(3.5, 14.2));
+		enemy_[3]->InitEnemy(primitive_builder_, world_, b2Vec2(0, 20.5));
+		enemy_[4]->InitEnemy(primitive_builder_, world_, b2Vec2(-5, 22.4));
+		enemy_[5]->InitEnemy(primitive_builder_, world_, b2Vec2(2, 25.5));
+	//}
+
+	jumpSE = audio_manager_->LoadSample("jump.wav", platform_);
+	
 }
 
 void SceneApp::GameRelease()
@@ -472,6 +476,24 @@ void SceneApp::GameRelease()
 	delete renderer_3d_;
 	renderer_3d_ = NULL;
 
+	for (int i = 0; i < noOfPlat; ++i)
+	{
+		delete platforms_[i];
+		platforms_[i] = NULL;
+	}
+
+	for (int i = 0; i < noOfCollect; ++i)
+	{
+		delete collect_[i];
+		collect_[i] = NULL;
+	}
+
+	for (int i = 0; i < noOfEnemy; ++i)
+	{
+		delete enemy_[i];
+		enemy_[i] = NULL;
+	}
+
 }
 
 void SceneApp::GameUpdate(float frame_time)
@@ -479,10 +501,11 @@ void SceneApp::GameUpdate(float frame_time)
 	const gef::SonyController* controller = input_manager_->controller_input()->GetController(0);
 	const gef::Keyboard* keyboards = input_manager_->keyboard();
 	
-	if (keyboards->IsKeyPressed(gef::Keyboard::KC_SPACE))
+	if (keyboards->IsKeyPressed(gef::Keyboard::KC_SPACE) && player_.GetJumping() <= 0)// && player_.GetJumping() == false)
 	{
 		player_.GetBody()->ApplyForceToCenter(b2Vec2(0, 100), true); // 350 did work with previous mass
 		player_.SetState(Player::JUMP);
+		audio_manager_->PlaySample(jumpSE, false);
 	}
 
 	if (keyboards->IsKeyPressed(gef::Keyboard::KC_R))
@@ -530,22 +553,23 @@ void SceneApp::GameUpdate(float frame_time)
 	// when the player reaches the edge of the screen, set the position to the opposite side of the screen
 	if (player_.GetBody()->GetPosition().x < -8)
 	{
-		gef::DebugOut("position hit");//, " Mass 2 is %f %f \n", ground_body_->GetMass());
-		//player_body_->
 		b2Vec2 newPositionL(8.0f, player_.GetBody()->GetPosition().y);
 		player_.GetBody()->SetTransform(newPositionL, player_.GetBody()->GetAngle());
 	}
 
 	if (player_.GetBody()->GetPosition().x > 8)
 	{
-		gef::DebugOut("position hit");//, " Mass 2 is %f %f \n", ground_body_->GetMass());
-									  //player_body_->
 		b2Vec2 newPositionR(-8.0f, player_.GetBody()->GetPosition().y);
 		player_.GetBody()->SetTransform(newPositionR, player_.GetBody()->GetAngle());
 	}
 
 	player_.Update(frame_time);
 	collect_[0]->UpdateFromSimulation(collect_[0]->GetBody());
+
+	//for (int i = 0; i < noOfEnemy; ++i)
+	//{
+	//	enemy_[i]->MoveEnemy(2, 6, 2, 7);
+	//}
 	//collect_->UpdateFromSimulation(collect_->GetBody());
 	UpdateSimulation(frame_time);
 	
@@ -595,8 +619,13 @@ void SceneApp::GameRender()
 	}
 	//renderer_3d_->DrawMesh(*collect_);
 
+	for (int i = 0; i < noOfEnemy; ++i)
+	{
+		renderer_3d_->DrawMesh(*enemy_[i]);
+	}
+
 	// draw player
-	renderer_3d_->set_override_material(&primitive_builder_->red_material());
+	renderer_3d_->set_override_material(&primitive_builder_->blue_material());
 	renderer_3d_->DrawMesh(player_);
 	renderer_3d_->set_override_material(NULL);
 

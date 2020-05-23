@@ -11,6 +11,7 @@ class platforms : public GameObject
 public:
 	platforms();
 	void InitPlatforms(PrimitiveBuilder* primBuild, b2World* world, float x, float y);
+	void MovingPlatforms();
 
 protected:
 
@@ -18,5 +19,6 @@ private:
 	//gef::Mesh* platform_mesh_;
 	b2Body* platform_body_;
 
+	bool m_canMove = false;
 
 };
