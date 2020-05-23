@@ -14,6 +14,8 @@
 #include "Platform.h"
 #include "Collectable.h"
 #include "Enemy.h"
+#include <graphics/scene.h>
+#include <list>
 
 // FRAMEWORK FORWARD DECLARATIONS
 namespace gef
@@ -48,8 +50,10 @@ private:
 	void InitFont();
 	void CleanUpFont();
 	void DrawHUD();
+	void DrawGameOver();
 	void SetupLights();
 	void UpdateSimulation(float frame_time);
+	
     
 	gef::SpriteRenderer* sprite_renderer_;
 	gef::Font* font_;
@@ -82,7 +86,7 @@ private:
 	b2Body* ground_body_;
 
 	platforms* platforms_[20];
-	Collectable* collect_[30];
+	Collectable* collect_[10];
 	Enemy* enemy_[6];
 
 
@@ -105,10 +109,20 @@ private:
 	void GameRelease();
 	void GameUpdate(float frame_time);
 	void GameRender();
+	void GameCleanUp();
+	gef::Scene* LoadSceneAssets(gef::Platform& platform, const char* filename);
+	gef::Mesh* GetMeshFromSceneAssets(gef::Scene* scene);
+
+
+
+	gef::MeshInstance mesh_instance_;
+	gef::Scene* scene_assets_;
 
 	void InitGameState();
 	/*void UpdateGameStateMachine(float frame_time);*/
 	void ReleaseGameState();
+
+	std::list<b2Body*>ToDelete;
 };
 
 #endif // _SCENE_APP_H

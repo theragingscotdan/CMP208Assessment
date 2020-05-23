@@ -14,8 +14,8 @@ Collectable::~Collectable()
 
 void Collectable::InitCollectable(PrimitiveBuilder* primBuild, b2World* world, float x, float y)
 {
-	set_mesh(primBuild->GetDefaultSphereMesh());
-	SetScale(gef::Vector4(0.5, 0.5, 0.5));
+	//set_mesh(primBuild->GetDefaultSphereMesh());
+	SetScale(gef::Vector4(0.25, 0.25, 0.25));
 
 	// create a physics body for the player
 	b2BodyDef collect_body_def;
@@ -26,7 +26,7 @@ void Collectable::InitCollectable(PrimitiveBuilder* primBuild, b2World* world, f
 
 	// create the shape for the player
 	b2PolygonShape collect_shape;
-	collect_shape.SetAsBox(0.25f, 0.25f);
+	collect_shape.SetAsBox(0.125f, 0.125f);
 
 
 	// create the fixture
@@ -41,6 +41,7 @@ void Collectable::InitCollectable(PrimitiveBuilder* primBuild, b2World* world, f
 	UpdateFromSimulation(collect_body_);
 
 	set_type(COLLECTABLE);
+	isPickedUp = false;
 	// create a connection between the rigid body and GameObject
 	collect_body_->SetUserData(this);
 
@@ -51,3 +52,15 @@ b2Body * Collectable::GetBody()
 {
 	return collect_body_;
 }
+
+void Collectable::SetPickUp(bool pickup)
+{
+	isPickedUp = pickup;
+}
+
+bool Collectable::GetPickUp()
+{
+	return isPickedUp;
+}
+
+

@@ -44,10 +44,14 @@ void Player::InitPlayer(PrimitiveBuilder* primBuild, b2World* world)
 
 void Player::Update(float frame_time)
 {
-	if (state_ = JUMP)
-	{
-		m_jumpEnd--;
-	} 
+	//if (state_ = JUMP)
+//	{
+		
+		while (state_ = JUMP)
+		{
+			canJump = false;
+		}
+	//} 
 	/*else
 	{
 		canJump = false;
@@ -60,11 +64,11 @@ void Player::Update(float frame_time)
 		m_health = 3;
 		
 	}
-
-	if (m_lives <= 0)
-	{
-		// game over
-	}
+//
+//	if (m_lives <= 0)
+//	{
+//		// game over
+//	}
 }
 
 void Player::SetState(PlayerState state)
@@ -108,9 +112,9 @@ void Player::LoseLife()
 	m_lives -= 1;
 }
 
-int Player::GetJumping()
+bool Player::GetJumping()
 {
-	return m_jumpEnd;
+	return canJump;
 }
 
 

@@ -14,8 +14,9 @@ Enemy::~Enemy()
 void Enemy::InitEnemy(PrimitiveBuilder* primBuild, b2World* world, b2Vec2 initialPosition)
 {
 	// setup the mesh for the player
-	set_mesh(primBuild->GetDefaultCubeMesh());
-	SetScale(gef::Vector4(0.5, 0.5, 0.5));
+	//set_mesh(primBuild->GetDefaultCubeMesh());
+	SetScale(gef::Vector4(0.09, 0.09, 0.09));
+	
 
 	// create a physics body for the player
 
@@ -32,7 +33,7 @@ void Enemy::InitEnemy(PrimitiveBuilder* primBuild, b2World* world, b2Vec2 initia
 
 	// create the shape for the player
 	b2PolygonShape enemy_shape;
-	enemy_shape.SetAsBox(0.25f, 0.25f);
+	enemy_shape.SetAsBox(0.125f, 0.125f);
 
 	// create the fixture
 	b2FixtureDef enemy_fixture_def;

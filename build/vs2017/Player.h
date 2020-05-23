@@ -33,13 +33,13 @@ public:
 	int GetHealth();
 	void ReduceHealth();// (int health_);
 	void LoseLife();
-	int GetJumping();
+	bool GetJumping();
 
 private:
 	b2Body* player_body_;
 	
 	PlayerState state_;
-	bool canJump = false;
+	bool canJump = true;
 	int m_score = 0;
 	int m_lives = 3;
 	int m_health = 3;

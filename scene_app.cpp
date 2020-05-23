@@ -10,10 +10,13 @@
 #include <graphics/sprite.h>
 #include "load_texture.h"
 #include <input/keyboard.h>
+#include <list>
 
 const int noOfPlat = 20;
-const int noOfCollect = 30;
+const int noOfCollect = 10;
 const int noOfEnemy = 6;
+
+using std::list;
 
 SceneApp::SceneApp(gef::Platform& platform) :
 	Application(platform),
@@ -51,6 +54,22 @@ void SceneApp::Init()
 		enemy_[i] = new Enemy;
 	}
 	
+	//const char* collect_name = "ring.scn";
+
+	scene_assets_ = LoadSceneAssets(platform_, "ring.scn");
+	if (scene_assets_)
+	{
+		for (int i = 0; i < noOfCollect; ++i)
+			collect_[i]->set_mesh(GetMeshFromSceneAssets(scene_assets_));
+	}
+
+	// the use of pingu is an in-joke between some members of a discord server
+	scene_assets_ = LoadSceneAssets(platform_, "pingu.scn");
+	if (scene_assets_)
+	{
+		for (int i = 0; i < noOfEnemy; ++i)
+			enemy_[i]->set_mesh(GetMeshFromSceneAssets(scene_assets_));
+	}
 
 	initialise = new Initial;
 
@@ -78,6 +97,9 @@ void SceneApp::CleanUp()
 	delete audio_manager_;
 	audio_manager_ = NULL;
 
+	delete scene_assets_;
+	scene_assets_ = NULL;
+
 	ReleaseGameState();
 }
 
@@ -102,6 +124,9 @@ bool SceneApp::Update(float frame_time)
 		GameUpdate(frame_time);
 		break;
 
+	case GAMEOVER:
+		GameUpdate(frame_time);
+		break;
 
 
 	}
@@ -127,6 +152,10 @@ void SceneApp::Render()
 		GameRender();
 		
 	break;
+
+	case GAMEOVER:
+		DrawGameOver();
+		break;
 		
 	}
 	
@@ -187,7 +216,21 @@ void SceneApp::DrawHUD()
 		{
 			font_->RenderText(sprite_renderer_, gef::Vector4(0.0f, 0.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "Score: %i", player_.GetScore());
 			font_->RenderText(sprite_renderer_, gef::Vector4(850.0f, 0.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "Health: %i", player_.GetLives());
+			//font_->RenderText(sprite_renderer_, gef::Vector4(650.0f, 0.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_LEFT, "Health: %i", player_.GetHealth());
 		}
+
+		
+	}
+}
+
+void SceneApp::DrawGameOver()
+{
+	if (game_state == GAMEOVER)
+	{
+		font_->RenderText(sprite_renderer_, gef::Vector4(platform_.width()*0.5f, platform_.height()*0.5f - 56.0f, -0.99f),
+			4.0f,0xff0000ff,gef::TJ_CENTRE, "GAME OVER!");
+		font_->RenderText(sprite_renderer_, gef::Vector4(400.0f, 500.0f, -0.9f), 1.0f, 0xffffffff, gef::TJ_CENTRE, "Press Enter to return to main menu");
+		
 	}
 }
 
@@ -227,6 +270,8 @@ void SceneApp::UpdateSimulation(float frame_time)
 	b2Contact* contact = world_->GetContactList();
 	// get contact count
 	int contact_count = world_->GetContactCount();
+
+	
 
 	for (int contact_num = 0; contact_num<contact_count; ++contact_num)
 	{
@@ -287,38 +332,71 @@ void SceneApp::UpdateSimulation(float frame_time)
 
 			if (player && collect)
 			{
-				gef::DebugOut("Collide\n");
-				player->AddScore(100);
-				break;
+				/*if (collect->GetPickUp() == false)
+				{*/
+					ToDelete.push_back(collect->GetBody());
+					gef::DebugOut("Collide\n");
+					player->AddScore(100);
+					//collect->SetPickUp(true);
+					//world_->DestroyBody(collect->GetBody());
+					//delete collect;
+
+					//break;
+				//}
 			}
 
 			if (player && enemy)
 			{
-				if (player->GetHealth() >0)
+				if (player->GetLives() >0)
 				{
-					player->ReduceHealth();
+					
 					player->GetBody()->ApplyForceToCenter(b2Vec2(-5.00, 0), true);
+					player->ReduceHealth();
 					
 				}
 				// consider doing this in player
-				if (player->GetLives() > 0)
+				if (player->GetLives() <= 0)
 				{
 					// apply a force to the player to knock back
 
 					// lose 1 hp (create a setter style in player to do this)
-					player->LoseLife();
+					// game over
 					// reload level
+					game_state = GAMEOVER;
 				}
 			
 			}
+		/*	if (collect->GetPickUp() == true)
+			{
+				world_->DestroyBody(collect->GetBody());
+			}*/
 	
 		}
 
+		
+
 		// Get next contact point
 		contact = contact->GetNext();
+		
+		
+
 	}
+	/*if (ToDelete.size() > 0)
+	{
+		world_->DestroyBody(ToDelete.front());
+		ToDelete.clear();
+	}*/
 }
 
+void SceneApp::GameCleanUp()
+{
+	/*
+	for (int i = 0; i < noOfCollect; ++i)
+	{
+		if (collect_[i]->SetPickUp())
+			world_->DestroyBody(collect_[i])
+	}*/
+}
 void SceneApp::FrontendInit()
 {
 	button_icon_ = CreateTextureFromPNG("playstation-cross-dark-icon.png", platform_);
@@ -443,15 +521,21 @@ void SceneApp::GameInit()
 
 	collect_[0]->InitCollectable(primitive_builder_, world_, -5.0, -0.5);
 	collect_[1]->InitCollectable(primitive_builder_, world_, 2.5, 10.5);
-	collect_[2]->InitCollectable(primitive_builder_, world_, 5.0, 3.5);
-	collect_[3]->InitCollectable(primitive_builder_, world_, 5.0, 23.5);
+	collect_[2]->InitCollectable(primitive_builder_, world_, 0, 0);
+	collect_[3]->InitCollectable(primitive_builder_, world_, -2.0, 13.5);
+	collect_[4]->InitCollectable(primitive_builder_, world_,-3.25, 16.5);	
+	collect_[5]->InitCollectable(primitive_builder_, world_, 5.0, 13.5);	
+	collect_[6]->InitCollectable(primitive_builder_, world_, -6.25, 18.0);	
+	collect_[7]->InitCollectable(primitive_builder_, world_, -2.0, 23.5);	
+	collect_[8]->InitCollectable(primitive_builder_, world_, 5.0, 23.5);	
+	collect_[9]->InitCollectable(primitive_builder_, world_, 5.0, 27.5);
 
 	/*for (int i = 0; i < noOfEnemy; ++i)
 	{
 		*/
-		enemy_[0]->InitEnemy(primitive_builder_, world_, b2Vec2(-1.0f, 6.0f));
+		enemy_[0]->InitEnemy(primitive_builder_, world_, b2Vec2(1.0f, 6.0f));
 		enemy_[1]->InitEnemy(primitive_builder_, world_, b2Vec2(-3.0, 2.5));
-		enemy_[2]->InitEnemy(primitive_builder_, world_, b2Vec2(3.5, 14.2));
+		enemy_[2]->InitEnemy(primitive_builder_, world_, b2Vec2(2.5, 14.2));
 		enemy_[3]->InitEnemy(primitive_builder_, world_, b2Vec2(0, 20.5));
 		enemy_[4]->InitEnemy(primitive_builder_, world_, b2Vec2(-5, 22.4));
 		enemy_[5]->InitEnemy(primitive_builder_, world_, b2Vec2(2, 25.5));
@@ -501,66 +585,86 @@ void SceneApp::GameUpdate(float frame_time)
 	const gef::SonyController* controller = input_manager_->controller_input()->GetController(0);
 	const gef::Keyboard* keyboards = input_manager_->keyboard();
 	
-	if (keyboards->IsKeyPressed(gef::Keyboard::KC_SPACE) && player_.GetJumping() <= 0)// && player_.GetJumping() == false)
-	{
-		player_.GetBody()->ApplyForceToCenter(b2Vec2(0, 100), true); // 350 did work with previous mass
-		player_.SetState(Player::JUMP);
-		audio_manager_->PlaySample(jumpSE, false);
-	}
-
-	if (keyboards->IsKeyPressed(gef::Keyboard::KC_R))
-	{
-		// reload level
-		//ReleaseGameState();
-		game_state = INIT;
-	}
 	
-	if (keyboards->IsKeyDown(gef::Keyboard::KC_RIGHT) || keyboards->IsKeyDown(gef::Keyboard::KC_D))
+	if (game_state != GAMEOVER)
 	{
-		if (player_.GetBody()->GetLinearVelocity().x <= 5)
+		if (keyboards->IsKeyPressed(gef::Keyboard::KC_SPACE))
 		{
-	
-		//player_body_->ApplyForceToCenter(b2Vec2(1.25, player_body_->GetLinearVelocity().y), true);
-			player_.GetBody()->ApplyForceToCenter(b2Vec2(1.25, 0), true);
-		
+
+			if (player_.GetJumping() == true)
+			{
+				player_.GetBody()->ApplyForceToCenter(b2Vec2(0, 100), true); // 350 did work with previous mass
+				player_.SetState(Player::JUMP);
+				audio_manager_->PlaySample(jumpSE, false);
+			}
+			else
+			{
+
+			}
 		}
-		else if (player_.GetBody()->GetLinearVelocity().x > 5)
+
+		if (keyboards->IsKeyPressed(gef::Keyboard::KC_R))
 		{
-			player_.GetBody()->SetLinearVelocity(b2Vec2(5.0, player_.GetBody()->GetLinearVelocity().y));
+			// reload level
+			//ReleaseGameState();
+			game_state = INIT;
+		}
+
+		if (keyboards->IsKeyDown(gef::Keyboard::KC_RIGHT) || keyboards->IsKeyDown(gef::Keyboard::KC_D))
+		{
+			if (player_.GetBody()->GetLinearVelocity().x <= 5)
+			{
+
+				//player_body_->ApplyForceToCenter(b2Vec2(1.25, player_body_->GetLinearVelocity().y), true);
+				player_.GetBody()->ApplyForceToCenter(b2Vec2(1.25, 0), true);
+
+			}
+			else if (player_.GetBody()->GetLinearVelocity().x > 5)
+			{
+				player_.GetBody()->SetLinearVelocity(b2Vec2(5.0, player_.GetBody()->GetLinearVelocity().y));
+			}
+		}
+
+		if (keyboards->IsKeyDown(gef::Keyboard::KC_LEFT) || keyboards->IsKeyDown(gef::Keyboard::KC_A))
+		{
+			if (player_.GetBody()->GetLinearVelocity().x >= -5)
+			{
+				//player_body_->ApplyForceToCenter(b2Vec2(-1.25, player_body_->GetLinearVelocity().y), true);
+				player_.GetBody()->ApplyForceToCenter(b2Vec2(-1.25, 0), true);
+			}
+			else if (player_.GetBody()->GetLinearVelocity().x < -5)
+			{
+				player_.GetBody()->SetLinearVelocity(b2Vec2(-5.0, player_.GetBody()->GetLinearVelocity().y));
+			}
+		}
+
+		// to be used in future
+		if (keyboards->IsKeyDown(gef::Keyboard::KC_E))
+		{
+			player_.SetState(Player::ATTACK);
+		}
+
+		// attempt to wrap the player
+		// when the player reaches the edge of the screen, set the position to the opposite side of the screen
+		if (player_.GetBody()->GetPosition().x < -8)
+		{
+			b2Vec2 newPositionL(8.0f, player_.GetBody()->GetPosition().y);
+			player_.GetBody()->SetTransform(newPositionL, player_.GetBody()->GetAngle());
+		}
+
+		if (player_.GetBody()->GetPosition().x > 8)
+		{
+			b2Vec2 newPositionR(-8.0f, player_.GetBody()->GetPosition().y);
+			player_.GetBody()->SetTransform(newPositionR, player_.GetBody()->GetAngle());
 		}
 	}
 
-	if (keyboards->IsKeyDown(gef::Keyboard::KC_LEFT) || keyboards->IsKeyDown(gef::Keyboard::KC_A))
+	if (game_state == GAMEOVER)
 	{
-		if (player_.GetBody()->GetLinearVelocity().x >= -5)
+		if (keyboards->IsKeyDown(gef::Keyboard::KC_RETURN))
 		{
-			//player_body_->ApplyForceToCenter(b2Vec2(-1.25, player_body_->GetLinearVelocity().y), true);
-			player_.GetBody()->ApplyForceToCenter(b2Vec2(-1.25, 0), true);
+			game_state = INIT;
 		}
-		else if (player_.GetBody()->GetLinearVelocity().x < -5)
-		{
-			player_.GetBody()->SetLinearVelocity(b2Vec2(-5.0, player_.GetBody()->GetLinearVelocity().y));
-		}
-	}
-	
-	// to be used in future
-	if (keyboards->IsKeyDown(gef::Keyboard::KC_E))
-	{
-		player_.SetState(Player::ATTACK);
-	}
-
-	// attempt to wrap the player
-	// when the player reaches the edge of the screen, set the position to the opposite side of the screen
-	if (player_.GetBody()->GetPosition().x < -8)
-	{
-		b2Vec2 newPositionL(8.0f, player_.GetBody()->GetPosition().y);
-		player_.GetBody()->SetTransform(newPositionL, player_.GetBody()->GetAngle());
-	}
-
-	if (player_.GetBody()->GetPosition().x > 8)
-	{
-		b2Vec2 newPositionR(-8.0f, player_.GetBody()->GetPosition().y);
-		player_.GetBody()->SetTransform(newPositionR, player_.GetBody()->GetAngle());
 	}
 
 	player_.Update(frame_time);
@@ -636,6 +740,41 @@ void SceneApp::GameRender()
 	DrawHUD();
 	sprite_renderer_->End();
 }
+
+
+
+gef::Scene* SceneApp::LoadSceneAssets(gef::Platform& platform, const char* filename)
+{
+	gef::Scene* scene = new gef::Scene();
+
+	if (scene->ReadSceneFromFile(platform, filename))
+	{
+		// if scene file loads successful
+		// create material and mesh resources from the scene data
+		scene->CreateMaterials(platform);
+		scene->CreateMeshes(platform);
+	}
+	else
+	{
+		delete scene;
+		scene = NULL;
+	}
+
+	return scene;
+}
+
+gef::Mesh* SceneApp::GetMeshFromSceneAssets(gef::Scene* scene)
+{
+	gef::Mesh* mesh = NULL;
+
+	// if the scene data contains at least one mesh
+	// return the first mesh
+	if (scene && scene->meshes.size() > 0)
+		mesh = scene->meshes.front();
+
+	return mesh;
+}
+
 
 
 void SceneApp::InitGameState()
