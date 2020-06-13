@@ -94,6 +94,7 @@ private:
 	//int sfx_id_;
 	int jumpSE = -1;
 	int sfx_voice_id_;
+	int BGMid;
 
 	float fps_;
 	float speed = 0;
@@ -123,6 +124,10 @@ private:
 	void ReleaseGameState();
 
 	std::list<b2Body*>ToDelete;
+	void Options();
+
+	bool MusicOn = true;
 };
+
 
 #endif // _SCENE_APP_H

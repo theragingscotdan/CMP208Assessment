@@ -75,7 +75,7 @@ void SceneApp::Init()
 
 	// initialise audio manager
 	audio_manager_ = gef::AudioManager::Create();
-
+	   
 	game_state = INIT;
 
 	InitGameState();
@@ -83,6 +83,8 @@ void SceneApp::Init()
 
 void SceneApp::CleanUp()
 {
+	ReleaseGameState();
+	
 	delete input_manager_;
 	input_manager_ = NULL;
 
@@ -100,7 +102,7 @@ void SceneApp::CleanUp()
 	delete scene_assets_;
 	scene_assets_ = NULL;
 
-	ReleaseGameState();
+	
 }
 
 bool SceneApp::Update(float frame_time)
@@ -128,9 +130,12 @@ bool SceneApp::Update(float frame_time)
 		GameUpdate(frame_time);
 		break;
 
-
 	}
 
+	if (MusicOn == false)
+	{
+		audio_manager_->StopMusic();
+	}
 
 	return true;
 }
@@ -138,7 +143,7 @@ bool SceneApp::Update(float frame_time)
 void SceneApp::Render()
 {
 	//InitGameState();
-	
+	sprite_renderer_->Begin();
 	switch (game_state)
 	{
 	case INIT:
@@ -156,9 +161,12 @@ void SceneApp::Render()
 	case GAMEOVER:
 		DrawGameOver();
 		break;
-		
+
+	case OPTIONS:
+		Options();
+		break;
 	}
-	
+	sprite_renderer_->End();
 }
 
 void SceneApp::InitGround()
@@ -270,8 +278,6 @@ void SceneApp::UpdateSimulation(float frame_time)
 	b2Contact* contact = world_->GetContactList();
 	// get contact count
 	int contact_count = world_->GetContactCount();
-
-	
 
 	for (int contact_num = 0; contact_num<contact_count; ++contact_num)
 	{
@@ -401,6 +407,8 @@ void SceneApp::GameCleanUp()
 			collect_[i] = NULL;
 		}
 	}
+
+
 }
 void SceneApp::FrontendInit()
 {
@@ -427,10 +435,12 @@ void SceneApp::FrontendUpdate(float frame_time)
 			InitGameState();
 		}
 
-		if (keyboards->IsKeyPressed(gef::Keyboard::KC_O))
-		{
-			game_state = OPTIONS;
-		}
+
+	}
+	if (keyboards->IsKeyPressed(gef::Keyboard::KC_O))
+	{
+		game_state = OPTIONS;
+
 	}
 }
 
@@ -473,6 +483,13 @@ void SceneApp::FrontendRender()
 		gef::TJ_CENTRE,
 		"HOW TO PLAY: \n" "USE WASD OR ARROW KEYS TO MOVE PRESS SPACE TO JUMP");
 
+	font_->RenderText(
+		sprite_renderer_,
+		gef::Vector4(platform_.width()*0.5f, platform_.height()*0.5f + 212.0f, -0.99f),
+		1.0f,
+		0xffffffff,
+		gef::TJ_CENTRE,
+		"Press O to enter options.");
 
 	//font_->RenderText(
 	//	sprite_renderer_,
@@ -485,6 +502,8 @@ void SceneApp::FrontendRender()
 	DrawHUD();
 	sprite_renderer_->End();
 }
+	
+
 
 void SceneApp::GameInit()
 {
@@ -547,8 +566,15 @@ void SceneApp::GameInit()
 	//}
 
 	jumpSE = audio_manager_->LoadSample("jump.wav", platform_);
+	BGMid = audio_manager_->LoadMusic("level1.wav", platform_);
 	player_.SetLives(3);
 	player_.ResetScore();
+
+	if (game_state == LEVEL1)
+	{
+		if (MusicOn)
+		audio_manager_->PlayMusic();
+	}
 	
 }
 
@@ -585,6 +611,8 @@ void SceneApp::GameRelease()
 		enemy_[i] = NULL;
 	}
 
+	audio_manager_->StopMusic();
+	audio_manager_->UnloadMusic();
 }
 
 void SceneApp::GameUpdate(float frame_time)
@@ -811,4 +839,70 @@ void SceneApp::ReleaseGameState()
 		break;
 
 	}
+}
+
+void SceneApp::Options()
+{
+	if (game_state == OPTIONS)
+	{
+		sprite_renderer_->Begin();
+		
+		font_->RenderText(
+			sprite_renderer_,
+			gef::Vector4(platform_.width()*0.5f, platform_.height()*0.5f, -0.99f),
+			1.0f,
+			0xffffffff,
+			gef::TJ_CENTRE,
+			"Music: ");
+
+		if (MusicOn)
+		{
+			font_->RenderText(
+				sprite_renderer_,
+				gef::Vector4(platform_.width()*0.5f, platform_.height()*0.5f+ 30, -0.99f),
+				1.0f,
+				0xffffffff,
+				gef::TJ_CENTRE,
+				"ON");
+		}
+
+		if (MusicOn == false)
+		{
+			font_->RenderText(
+				sprite_renderer_,
+				gef::Vector4(platform_.width()*0.5f, platform_.height()*0.5f + 30, -0.99f),
+				1.0f,
+				0xffffffff,
+				gef::TJ_CENTRE,
+				"OFF");
+		}
+
+		font_->RenderText(
+			sprite_renderer_,
+			gef::Vector4(platform_.width()*0.5f, platform_.height()*0.5f+ 200, -0.99f),
+			1.0f,
+			0xffffffff,
+			gef::TJ_CENTRE,
+			"Use left and right arrow keys to switch between options and enter to leave");
+	}
+
+
+	const gef::Keyboard* keyboards = input_manager_->keyboard();
+	if (keyboards->IsKeyPressed(gef::Keyboard::KC_LEFT) || keyboards->IsKeyPressed(gef::Keyboard::KC_RIGHT))
+	{
+		if (MusicOn)
+		{
+			MusicOn = false;
+		}
+		else if (MusicOn == false)
+		{
+			MusicOn = true;
+		}
+	}
+
+	if (keyboards->IsKeyPressed(gef::Keyboard::KC_RETURN))
+	{
+		game_state = INIT;
+	}
+	sprite_renderer_->End();
 }
